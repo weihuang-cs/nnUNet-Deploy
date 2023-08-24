@@ -1,17 +1,17 @@
 import multiprocessing
 import queue
-from torch.multiprocessing import Event, Process, Queue, Manager
+from torch.multiprocessing import Event, Queue, Manager
 
 from time import sleep
 from typing import Union, List
 
 import numpy as np
 import torch
-from batchgenerators.dataloading.data_loader import DataLoader
+from predictor.batchgenerators.dataloading.data_loader import DataLoader
 
-from nnunetv2.preprocessing.preprocessors.default_preprocessor import DefaultPreprocessor
-from nnunetv2.utilities.label_handling.label_handling import convert_labelmap_to_one_hot
-from nnunetv2.utilities.plans_handling.plans_handler import PlansManager, ConfigurationManager
+from predictor.preprocessing.preprocessors.default_preprocessor import DefaultPreprocessor
+from predictor.utilities.label_handling.label_handling import convert_labelmap_to_one_hot
+from predictor.utilities.plans_handling.plans_handler import ConfigurationManager, PlansManager
 
 
 def preprocess_fromfiles_save_to_queue(list_of_lists: List[List[str]],

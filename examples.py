@@ -1,9 +1,9 @@
 if __name__ == '__main__':
-    from nnunetv2.paths import nnUNet_results, nnUNet_raw
+    from predictor.paths import nnUNet_results, nnUNet_raw
     import torch
-    from batchgenerators.utilities.file_and_folder_operations import join
-    from nnunetv2.inference.predict_from_raw_data import nnUNetPredictor
-    from nnunetv2.imageio.simpleitk_reader_writer import SimpleITKIO
+    from predictor.batchgenerators.utilities.file_and_folder_operations import join
+    from predictor.inference.predict_from_raw_data import nnUNetPredictor
+    from predictor.imageio.simpleitk_reader_writer import SimpleITKIO
 
     # nnUNetv2_predict -d 3 -f 0 -c 3d_lowres -i imagesTs -o imagesTs_predlowres --continue_prediction
 
@@ -54,7 +54,7 @@ if __name__ == '__main__':
                                                            part_id=0)
 
     # predict several npy images
-    from nnunetv2.imageio.simpleitk_reader_writer import SimpleITKIO
+    from predictor.imageio.simpleitk_reader_writer import SimpleITKIO
 
     img, props = SimpleITKIO().read_images([join(nnUNet_raw, 'Dataset003_Liver/imagesTs/liver_147_0000.nii.gz')])
     img2, props2 = SimpleITKIO().read_images([join(nnUNet_raw, 'Dataset003_Liver/imagesTs/liver_146_0000.nii.gz')])
