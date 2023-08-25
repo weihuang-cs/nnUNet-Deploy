@@ -28,6 +28,7 @@ class DropPath(nn.Module):
 
     Drop paths (Stochastic Depth) per sample  (when applied in main path of residual blocks).
     """
+
     def __init__(self, drop_prob: float = 0., scale_by_keep: bool = True):
         super(DropPath, self).__init__()
         self.drop_prob = drop_prob
@@ -50,6 +51,7 @@ class SqueezeExcite(nn.Module):
         * global max pooling can be added to the squeeze aggregation
         * customizable activation, normalization, and gate layer
     """
+
     def __init__(
             self, channels, conv_op, rd_ratio=1. / 16, rd_channels=None, rd_divisor=8, add_maxpool=False,
             act_layer=nn.ReLU, norm_layer=None, gate_layer=nn.Sigmoid):

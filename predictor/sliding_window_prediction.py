@@ -1,10 +1,11 @@
 from functools import lru_cache
+from typing import Union, Tuple, List
 
 import numpy as np
 import torch
-from typing import Union, Tuple, List
-from predictor.common.data_ops.utilities import pad_nd_image
 from scipy.ndimage import gaussian_filter
+
+from predictor.common.utilities import pad_nd_image
 
 
 @lru_cache(maxsize=2)

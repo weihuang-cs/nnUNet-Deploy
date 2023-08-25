@@ -1,13 +1,14 @@
 from typing import Tuple, List, Union, Type
+
+import numpy as np
 import torch.nn
 from torch import nn
 from torch.nn.modules.conv import _ConvNd
 from torch.nn.modules.dropout import _DropoutNd
 
 from predictor.dynamic_network_architectures.building_blocks.helper import maybe_convert_scalar_to_list, get_matching_pool_op
-from predictor.dynamic_network_architectures.building_blocks.simple_conv_blocks import ConvDropoutNormReLU
 from predictor.dynamic_network_architectures.building_blocks.regularization import DropPath, SqueezeExcite
-import numpy as np
+from predictor.dynamic_network_architectures.building_blocks.simple_conv_blocks import ConvDropoutNormReLU
 
 
 class BasicBlockD(nn.Module):
@@ -342,8 +343,8 @@ class StackedResidualBlocks(nn.Module):
 
     def compute_conv_feature_map_size(self, input_size):
         assert len(input_size) == len(self.initial_stride), "just give the image size without color/feature channels or " \
-                                                    "batch channel. Do not give input_size=(b, c, x, y(, z)). " \
-                                                    "Give input_size=(x, y(, z))!"
+                                                            "batch channel. Do not give input_size=(b, c, x, y(, z)). " \
+                                                            "Give input_size=(x, y(, z))!"
         output = self.blocks[0].compute_conv_feature_map_size(input_size)
         size_after_stride = [i // j for i, j in zip(input_size, self.initial_stride)]
         for b in self.blocks[1:]:
@@ -355,8 +356,8 @@ if __name__ == '__main__':
     data = torch.rand((1, 3, 40, 32))
 
     stx = StackedResidualBlocks(2, nn.Conv2d, 24, (16, 16), (3, 3), (1, 2),
-                                                norm_op=nn.BatchNorm2d, nonlin=nn.ReLU, nonlin_kwargs={'inplace': True},
-                                                block=BottleneckD, bottleneck_channels=3)
+                                norm_op=nn.BatchNorm2d, nonlin=nn.ReLU, nonlin_kwargs={'inplace': True},
+                                block=BottleneckD, bottleneck_channels=3)
     model = nn.Sequential(ConvDropoutNormReLU(nn.Conv2d,
                                               3, 24, 3, 1, True, nn.BatchNorm2d, {}, None, None, nn.LeakyReLU,
                                               {'inplace': True}),

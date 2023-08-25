@@ -13,13 +13,11 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 import os.path
-from functools import lru_cache
-from typing import Union
-
-from predictor.batchgenerators.utilities.file_and_folder_operations import *
-import numpy as np
 import re
 
+import numpy as np
+
+from predictor.utilities.file_and_folder_operations import *
 
 
 def get_identifiers_from_splitted_dataset_folder(folder: str, file_ending: str):

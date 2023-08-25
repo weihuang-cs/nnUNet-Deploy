@@ -1,12 +1,13 @@
-import torch
-from torch import nn
-import numpy as np
 from typing import Union, Type, List, Tuple
 
+import numpy as np
+import torch
+from torch import nn
 from torch.nn.modules.conv import _ConvNd
 from torch.nn.modules.dropout import _DropoutNd
-from predictor.dynamic_network_architectures.building_blocks.residual import StackedResidualBlocks, BottleneckD, BasicBlockD
+
 from predictor.dynamic_network_architectures.building_blocks.helper import maybe_convert_scalar_to_list, get_matching_pool_op
+from predictor.dynamic_network_architectures.building_blocks.residual import StackedResidualBlocks, BottleneckD, BasicBlockD
 from predictor.dynamic_network_architectures.building_blocks.simple_conv_blocks import StackedConvBlocks
 
 

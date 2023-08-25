@@ -1,12 +1,15 @@
-import torch
-from predictor.utils import join
-from predictor.predict_from_raw_data import nnUNetPredictor
-import os
 import sys
+import trace
+
+import torch
+
+from predictor.predict_from_raw_data import nnUNetPredictor
+from predictor.utils import join
 
 sys.path.append("../predictor")
 
-if __name__ == "__main__":
+
+def run():
     model_folder = join("./model/FetalSeg/nnUNetTrainer_250epochs__nnUNetPlans__2d")
 
     # instantiate the nnUNetPredictor
@@ -41,3 +44,10 @@ if __name__ == "__main__":
         num_parts=1,
         part_id=0,
     )
+
+
+if __name__ == "__main__":
+    tracer = trace.Trace(trace=0, count=1)
+    tracer.runfunc(run)
+    results = tracer.results()
+    results.write_results(coverdir="res/")

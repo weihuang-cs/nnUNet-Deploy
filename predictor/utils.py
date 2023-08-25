@@ -116,6 +116,8 @@ class BaseReaderWriter(ABC):
         :return:
         """
         pass
+
+
 class SimpleITKIO(BaseReaderWriter):
     supported_file_endings = [
         '.nii.gz',
@@ -209,7 +211,7 @@ class SimpleITKIO(BaseReaderWriter):
         return stacked_images.astype(np.float32), dict
 
     def read_seg(self, seg_fname: str) -> Tuple[np.ndarray, dict]:
-        return self.read_images((seg_fname, ))
+        return self.read_images((seg_fname,))
 
     def write_seg(self, seg: np.ndarray, output_fname: str, properties: dict) -> None:
         assert len(seg.shape) == 3, 'segmentation must be 3d. If you are exporting a 2d segmentation, please provide it as shape 1,x,y'
@@ -232,8 +234,8 @@ def subdirs(folder, join=True, prefix=None, suffix=None, sort=True):
     else:
         l = lambda x, y: y
     res = [l(folder, i) for i in os.listdir(folder) if os.path.isdir(os.path.join(folder, i))
-            and (prefix is None or i.startswith(prefix))
-            and (suffix is None or i.endswith(suffix))]
+           and (prefix is None or i.startswith(prefix))
+           and (suffix is None or i.endswith(suffix))]
     if sort:
         res.sort()
     return res
@@ -245,8 +247,8 @@ def subfiles(folder, join=True, prefix=None, suffix=None, sort=True):
     else:
         l = lambda x, y: y
     res = [l(folder, i) for i in os.listdir(folder) if os.path.isfile(os.path.join(folder, i))
-            and (prefix is None or i.startswith(prefix))
-            and (suffix is None or i.endswith(suffix))]
+           and (prefix is None or i.startswith(prefix))
+           and (suffix is None or i.endswith(suffix))]
     if sort:
         res.sort()
     return res
@@ -259,9 +261,9 @@ def maybe_mkdir_p(directory):
     directory = os.path.abspath(directory)
     splits = directory.split("/")[1:]
     for i in range(0, len(splits)):
-        if not os.path.isdir(os.path.join("/", *splits[:i+1])):
+        if not os.path.isdir(os.path.join("/", *splits[:i + 1])):
             try:
-                os.mkdir(os.path.join("/", *splits[:i+1]))
+                os.mkdir(os.path.join("/", *splits[:i + 1]))
             except FileExistsError:
                 # this can sometimes happen when two jobs try to create the same directory at the same time,
                 # especially on network drives.

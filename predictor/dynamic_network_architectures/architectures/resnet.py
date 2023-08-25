@@ -1,8 +1,9 @@
 import torch
-from predictor.dynamic_network_architectures.building_blocks.residual_encoders import ResidualEncoder, BottleneckD, BasicBlockD
-from predictor.dynamic_network_architectures.building_blocks.helper import get_matching_pool_op, get_default_network_config
-from predictor.dynamic_network_architectures.building_blocks.simple_conv_blocks import ConvDropoutNormReLU
 from torch import nn
+
+from predictor.dynamic_network_architectures.building_blocks.helper import get_matching_pool_op, get_default_network_config
+from predictor.dynamic_network_architectures.building_blocks.residual_encoders import ResidualEncoder, BottleneckD, BasicBlockD
+from predictor.dynamic_network_architectures.building_blocks.simple_conv_blocks import ConvDropoutNormReLU
 
 _ResNet_CONFIGS = {
     '18': {'features_per_stage': (64, 128, 256, 512), 'n_blocks_per_stage': (2, 2, 2, 2), 'strides': (1, 2, 2, 2),
@@ -48,7 +49,7 @@ _ResNet_CONFIGS = {
 class ResNetD(nn.Module):
     def __init__(self, n_classes: int, n_input_channel: int = 3, config='18', input_dimension=2,
                  final_layer_dropout=0.0, stochastic_depth_p=0.0, squeeze_excitation=False,
-                 squeeze_excitation_rd_ratio=1./16):
+                 squeeze_excitation_rd_ratio=1. / 16):
         """
         Implements ResNetD (https://arxiv.org/pdf/1812.01187.pdf).
         Args:
@@ -71,7 +72,7 @@ class ResNetD(nn.Module):
 
         if self.cfg['disable_default_stem']:
             stem_features = self.cfg['stem_channels'] if self.cfg['stem_channels'] is not None else \
-            self.cfg['features_per_stage'][0]
+                self.cfg['features_per_stage'][0]
             self.stem = self._build_imagenet_stem_D(stem_features)
             encoder_input_features = stem_features
         else:
@@ -128,95 +129,106 @@ class ResNetD(nn.Module):
 class ResNet18_CIFAR(ResNetD):
     def __init__(self, n_classes: int, n_input_channels: int = 3, input_dimension: int = 2,
                  final_layer_dropout: float = 0.0, stochastic_depth_p: float = 0.0, squeeze_excitation: bool = False,
-                 squeeze_excitation_rd_ratio: float = 1./16):
+                 squeeze_excitation_rd_ratio: float = 1. / 16):
         super().__init__(n_classes, n_input_channels, config='18_cifar', input_dimension=input_dimension,
                          final_layer_dropout=final_layer_dropout, stochastic_depth_p=stochastic_depth_p,
                          squeeze_excitation=squeeze_excitation, squeeze_excitation_rd_ratio=squeeze_excitation_rd_ratio)
 
+
 class ResNet34_CIFAR(ResNetD):
     def __init__(self, n_classes: int, n_input_channels: int = 3, input_dimension: int = 2,
                  final_layer_dropout: float = 0.0, stochastic_depth_p: float = 0.0, squeeze_excitation: bool = False,
-                 squeeze_excitation_rd_ratio: float = 1./16):
+                 squeeze_excitation_rd_ratio: float = 1. / 16):
         super().__init__(n_classes, n_input_channels, config='34_cifar', input_dimension=input_dimension,
                          final_layer_dropout=final_layer_dropout, stochastic_depth_p=stochastic_depth_p,
                          squeeze_excitation=squeeze_excitation, squeeze_excitation_rd_ratio=squeeze_excitation_rd_ratio)
 
+
 class ResNet50_CIFAR(ResNetD):
     def __init__(self, n_classes: int, n_input_channels: int = 3, input_dimension: int = 2,
                  final_layer_dropout: float = 0.0, stochastic_depth_p: float = 0.0, squeeze_excitation: bool = False,
-                 squeeze_excitation_rd_ratio: float = 1./16):
+                 squeeze_excitation_rd_ratio: float = 1. / 16):
         super().__init__(n_classes, n_input_channels, config='50_cifar', input_dimension=input_dimension,
                          final_layer_dropout=final_layer_dropout, stochastic_depth_p=stochastic_depth_p,
                          squeeze_excitation=squeeze_excitation, squeeze_excitation_rd_ratio=squeeze_excitation_rd_ratio)
 
+
 class ResNet152_CIFAR(ResNetD):
     def __init__(self, n_classes: int, n_input_channels: int = 3, input_dimension: int = 2,
                  final_layer_dropout: float = 0.0, stochastic_depth_p: float = 0.0, squeeze_excitation: bool = False,
-                 squeeze_excitation_rd_ratio: float = 1./16):
+                 squeeze_excitation_rd_ratio: float = 1. / 16):
         super().__init__(n_classes, n_input_channels, config='152_cifar', input_dimension=input_dimension,
                          final_layer_dropout=final_layer_dropout, stochastic_depth_p=stochastic_depth_p,
                          squeeze_excitation=squeeze_excitation, squeeze_excitation_rd_ratio=squeeze_excitation_rd_ratio)
 
+
 class ResNet50bn_CIFAR(ResNetD):
     def __init__(self, n_classes: int, n_input_channels: int = 3, input_dimension: int = 2,
                  final_layer_dropout: float = 0.0, stochastic_depth_p: float = 0.0, squeeze_excitation: bool = False,
-                 squeeze_excitation_rd_ratio: float = 1./16):
+                 squeeze_excitation_rd_ratio: float = 1. / 16):
         super().__init__(n_classes, n_input_channels, config='50_cifar_bn', input_dimension=input_dimension,
                          final_layer_dropout=final_layer_dropout, stochastic_depth_p=stochastic_depth_p,
                          squeeze_excitation=squeeze_excitation, squeeze_excitation_rd_ratio=squeeze_excitation_rd_ratio)
 
+
 class ResNet152bn_CIFAR(ResNetD):
     def __init__(self, n_classes: int, n_input_channels: int = 3, input_dimension: int = 2,
                  final_layer_dropout: float = 0.0, stochastic_depth_p: float = 0.0, squeeze_excitation: bool = False,
-                 squeeze_excitation_rd_ratio: float = 1./16):
+                 squeeze_excitation_rd_ratio: float = 1. / 16):
         super().__init__(n_classes, n_input_channels, config='152_cifar_bn', input_dimension=input_dimension,
                          final_layer_dropout=final_layer_dropout, stochastic_depth_p=stochastic_depth_p,
                          squeeze_excitation=squeeze_excitation, squeeze_excitation_rd_ratio=squeeze_excitation_rd_ratio)
 
+
 class ResNet18(ResNetD):
     def __init__(self, n_classes: int, n_input_channels: int = 3, input_dimension: int = 2,
                  final_layer_dropout: float = 0.0, stochastic_depth_p: float = 0.0, squeeze_excitation: bool = False,
-                 squeeze_excitation_rd_ratio: float = 1./16):
+                 squeeze_excitation_rd_ratio: float = 1. / 16):
         super().__init__(n_classes, n_input_channels, config='18', input_dimension=input_dimension,
                          final_layer_dropout=final_layer_dropout, stochastic_depth_p=stochastic_depth_p,
                          squeeze_excitation=squeeze_excitation, squeeze_excitation_rd_ratio=squeeze_excitation_rd_ratio)
 
+
 class ResNet34(ResNetD):
     def __init__(self, n_classes: int, n_input_channels: int = 3, input_dimension: int = 2,
                  final_layer_dropout: float = 0.0, stochastic_depth_p: float = 0.0, squeeze_excitation: bool = False,
-                 squeeze_excitation_rd_ratio: float = 1./16):
+                 squeeze_excitation_rd_ratio: float = 1. / 16):
         super().__init__(n_classes, n_input_channels, config='34', input_dimension=input_dimension,
                          final_layer_dropout=final_layer_dropout, stochastic_depth_p=stochastic_depth_p,
                          squeeze_excitation=squeeze_excitation, squeeze_excitation_rd_ratio=squeeze_excitation_rd_ratio)
 
+
 class ResNet50(ResNetD):
     def __init__(self, n_classes: int, n_input_channels: int = 3, input_dimension: int = 2,
                  final_layer_dropout: float = 0.0, stochastic_depth_p: float = 0.0, squeeze_excitation: bool = False,
-                 squeeze_excitation_rd_ratio: float = 1./16):
+                 squeeze_excitation_rd_ratio: float = 1. / 16):
         super().__init__(n_classes, n_input_channels, config='50', input_dimension=input_dimension,
                          final_layer_dropout=final_layer_dropout, stochastic_depth_p=stochastic_depth_p,
                          squeeze_excitation=squeeze_excitation, squeeze_excitation_rd_ratio=squeeze_excitation_rd_ratio)
 
+
 class ResNet152(ResNetD):
     def __init__(self, n_classes: int, n_input_channels: int = 3, input_dimension: int = 2,
                  final_layer_dropout: float = 0.0, stochastic_depth_p: float = 0.0, squeeze_excitation: bool = False,
-                 squeeze_excitation_rd_ratio: float = 1./16):
+                 squeeze_excitation_rd_ratio: float = 1. / 16):
         super().__init__(n_classes, n_input_channels, config='152', input_dimension=input_dimension,
                          final_layer_dropout=final_layer_dropout, stochastic_depth_p=stochastic_depth_p,
                          squeeze_excitation=squeeze_excitation, squeeze_excitation_rd_ratio=squeeze_excitation_rd_ratio)
 
+
 class ResNet50bn(ResNetD):
     def __init__(self, n_classes: int, n_input_channels: int = 3, input_dimension: int = 2,
                  final_layer_dropout: float = 0.0, stochastic_depth_p: float = 0.0, squeeze_excitation: bool = False,
-                 squeeze_excitation_rd_ratio: float = 1./16):
+                 squeeze_excitation_rd_ratio: float = 1. / 16):
         super().__init__(n_classes, n_input_channels, config='50_bn', input_dimension=input_dimension,
                          final_layer_dropout=final_layer_dropout, stochastic_depth_p=stochastic_depth_p,
                          squeeze_excitation=squeeze_excitation, squeeze_excitation_rd_ratio=squeeze_excitation_rd_ratio)
 
+
 class ResNet152bn(ResNetD):
     def __init__(self, n_classes: int, n_input_channels: int = 3, input_dimension: int = 2,
                  final_layer_dropout: float = 0.0, stochastic_depth_p: float = 0.0, squeeze_excitation: bool = False,
-                 squeeze_excitation_rd_ratio: float = 1./16):
+                 squeeze_excitation_rd_ratio: float = 1. / 16):
         super().__init__(n_classes, n_input_channels, config='152_bn', input_dimension=input_dimension,
                          final_layer_dropout=final_layer_dropout, stochastic_depth_p=stochastic_depth_p,
                          squeeze_excitation=squeeze_excitation, squeeze_excitation_rd_ratio=squeeze_excitation_rd_ratio)
@@ -233,4 +245,4 @@ if __name__ == '__main__':
     g.save("network_architecture.pdf")
     del g
 
-    #print(model.compute_conv_feature_map_size((32, 32)))
+    # print(model.compute_conv_feature_map_size((32, 32)))

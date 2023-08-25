@@ -1,30 +1,27 @@
 from __future__ import annotations
 
-from predictor import dynamic_network_architectures
 from copy import deepcopy
 from functools import lru_cache, partial
+# see https://adamj.eu/tech/2021/05/13/python-type-hints-how-to-fix-circular-imports/
+from typing import TYPE_CHECKING
 from typing import Union, Tuple, List, Type, Callable
 
 import numpy as np
 import torch
-
-from predictor.preprocessing.resampling.utils import recursive_find_resampling_fn_by_name
 from torch import nn
 
-from predictor.batchgenerators.utilities.file_and_folder_operations import load_json, join
-
-from predictor.imageio.reader_writer_registry import recursive_find_reader_writer_by_name
+import predictor
+from predictor import dynamic_network_architectures
+from predictor.utilities.file_and_folder_operations import load_json, join
+from predictor.common.reader_writer_registry import recursive_find_reader_writer_by_name
+from predictor.common.utilities import recursive_find_resampling_fn_by_name
 from predictor.utilities.find_class_by_name import recursive_find_python_class
 from predictor.utilities.label_handling.label_handling import get_labelmanager_class_from_plans
-import predictor
-
-# see https://adamj.eu/tech/2021/05/13/python-type-hints-how-to-fix-circular-imports/
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from predictor.utilities.label_handling.label_handling import LabelManager
-    from predictor.imageio.base_reader_writer import BaseReaderWriter
-    from predictor.preprocessing.preprocessors.default_preprocessor import DefaultPreprocessor
+    from predictor.common.base_reader_writer import BaseReaderWriter
+    from predictor.data_ops.processor import DefaultPreprocessor
     from predictor.experiment_planning.experiment_planners.default_experiment_planner import ExperimentPlanner
 
 
@@ -46,9 +43,9 @@ class ConfigurationManager(object):
     @property
     @lru_cache(maxsize=1)
     def preprocessor_class(self) -> Type[DefaultPreprocessor]:
-        preprocessor_class = recursive_find_python_class(join(predictor.__path__[0], "preprocessing"),
+        preprocessor_class = recursive_find_python_class(join(predictor.__path__[0], "data_ops"),
                                                          self.preprocessor_name,
-                                                         current_module="predictor.preprocessing")
+                                                         current_module="predictor.data_ops")
         return preprocessor_class
 
     @property

@@ -1,9 +1,10 @@
+from torch import nn
+
 from predictor.dynamic_network_architectures.architectures.unet import PlainConvUNet, ResidualEncoderUNet
 from predictor.dynamic_network_architectures.building_blocks.helper import get_matching_instancenorm, convert_dim_to_conv_op
 from predictor.dynamic_network_architectures.initialization.weight_init import init_last_bn_before_add_to_0
 from predictor.utilities.network_initialization import InitWeights_He
 from predictor.utilities.plans_handling.plans_handler import ConfigurationManager, PlansManager
-from torch import nn
 
 
 def get_network_from_plans(plans_manager: PlansManager,

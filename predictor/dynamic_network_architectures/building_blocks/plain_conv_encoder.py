@@ -1,12 +1,13 @@
-import torch
-from torch import nn
-import numpy as np
 from typing import Union, Type, List, Tuple
 
+import numpy as np
+import torch
+from torch import nn
 from torch.nn.modules.conv import _ConvNd
 from torch.nn.modules.dropout import _DropoutNd
-from predictor.dynamic_network_architectures.building_blocks.simple_conv_blocks import StackedConvBlocks
+
 from predictor.dynamic_network_architectures.building_blocks.helper import maybe_convert_scalar_to_list, get_matching_pool_op
+from predictor.dynamic_network_architectures.building_blocks.simple_conv_blocks import StackedConvBlocks
 
 
 class PlainConvEncoder(nn.Module):
@@ -43,7 +44,7 @@ class PlainConvEncoder(nn.Module):
         assert len(n_conv_per_stage) == n_stages, "n_conv_per_stage must have as many entries as we have resolution stages (n_stages)"
         assert len(features_per_stage) == n_stages, "features_per_stage must have as many entries as we have resolution stages (n_stages)"
         assert len(strides) == n_stages, "strides must have as many entries as we have resolution stages (n_stages). " \
-                                             "Important: first entry is recommended to be 1, else we run strided conv drectly on the input"
+                                         "Important: first entry is recommended to be 1, else we run strided conv drectly on the input"
 
         stages = []
         for s in range(n_stages):
@@ -101,5 +102,3 @@ class PlainConvEncoder(nn.Module):
                 output += self.stages[s].compute_conv_feature_map_size(input_size)
             input_size = [i // j for i, j in zip(input_size, self.strides[s])]
         return output
-
-

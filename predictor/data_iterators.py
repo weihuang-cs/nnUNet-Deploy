@@ -1,15 +1,14 @@
 import multiprocessing
 import queue
-from torch.multiprocessing import Event, Queue, Manager
-
 from time import sleep
 from typing import Union, List
 
 import numpy as np
 import torch
-from predictor.batchgenerators.dataloading.data_loader import DataLoader
+from torch.multiprocessing import Event, Queue, Manager
 
-from predictor.preprocessing.preprocessors.default_preprocessor import DefaultPreprocessor
+from predictor.data_io.data_loader import DataLoader
+from predictor.data_ops.processor import DefaultPreprocessor
 from predictor.utilities.label_handling.label_handling import convert_labelmap_to_one_hot
 from predictor.utilities.plans_handling.plans_handler import ConfigurationManager, PlansManager
 
@@ -26,6 +25,7 @@ def preprocess_fromfiles_save_to_queue(list_of_lists: List[List[str]],
                                        verbose: bool = False):
     try:
         label_manager = plans_manager.get_label_manager(dataset_json)
+        print(type(configuration_manager))
         preprocessor = configuration_manager.preprocessor_class(verbose=verbose)
         for idx in range(len(list_of_lists)):
             data, seg, data_properites = preprocessor.run_case(list_of_lists[idx],
@@ -78,20 +78,20 @@ def preprocessing_iterator_fromfiles(list_of_lists: List[List[str]],
         event = manager.Event()
         queue = Manager().Queue(maxsize=1)
         pr = context.Process(target=preprocess_fromfiles_save_to_queue,
-                     args=(
-                         list_of_lists[i::num_processes],
-                         list_of_segs_from_prev_stage_files[
-                         i::num_processes] if list_of_segs_from_prev_stage_files is not None else None,
-                         output_filenames_truncated[
-                         i::num_processes] if output_filenames_truncated is not None else None,
-                         plans_manager,
-                         dataset_json,
-                         configuration_manager,
-                         queue,
-                         event,
-                         abort_event,
-                         verbose
-                     ), daemon=True)
+                             args=(
+                                 list_of_lists[i::num_processes],
+                                 list_of_segs_from_prev_stage_files[
+                                 i::num_processes] if list_of_segs_from_prev_stage_files is not None else None,
+                                 output_filenames_truncated[
+                                 i::num_processes] if output_filenames_truncated is not None else None,
+                                 plans_manager,
+                                 dataset_json,
+                                 configuration_manager,
+                                 queue,
+                                 event,
+                                 abort_event,
+                                 verbose
+                             ), daemon=True)
         pr.start()
         target_queues.append(queue)
         done_events.append(event)
@@ -115,6 +115,7 @@ def preprocessing_iterator_fromfiles(list_of_lists: List[List[str]],
             [i.pin_memory() for i in item.values() if isinstance(i, torch.Tensor)]
         yield item
     [p.join() for p in processes]
+
 
 class PreprocessAdapter(DataLoader):
     def __init__(self, list_of_lists: List[List[str]],
@@ -277,20 +278,20 @@ def preprocessing_iterator_fromnpy(list_of_images: List[np.ndarray],
         event = manager.Event()
         queue = manager.Queue(maxsize=1)
         pr = context.Process(target=preprocess_fromnpy_save_to_queue,
-                     args=(
-                         list_of_images[i::num_processes],
-                         list_of_segs_from_prev_stage[
-                         i::num_processes] if list_of_segs_from_prev_stage is not None else None,
-                         list_of_image_properties[i::num_processes],
-                         truncated_ofnames[i::num_processes] if truncated_ofnames is not None else None,
-                         plans_manager,
-                         dataset_json,
-                         configuration_manager,
-                         queue,
-                         event,
-                         abort_event,
-                         verbose
-                     ), daemon=True)
+                             args=(
+                                 list_of_images[i::num_processes],
+                                 list_of_segs_from_prev_stage[
+                                 i::num_processes] if list_of_segs_from_prev_stage is not None else None,
+                                 list_of_image_properties[i::num_processes],
+                                 truncated_ofnames[i::num_processes] if truncated_ofnames is not None else None,
+                                 plans_manager,
+                                 dataset_json,
+                                 configuration_manager,
+                                 queue,
+                                 event,
+                                 abort_event,
+                                 verbose
+                             ), daemon=True)
         pr.start()
         done_events.append(event)
         processes.append(pr)

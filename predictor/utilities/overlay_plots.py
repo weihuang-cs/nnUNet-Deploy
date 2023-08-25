@@ -12,19 +12,18 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 import multiprocessing
-from multiprocessing.pool import Pool
 from typing import Tuple, Union
 
 import numpy as np
 import pandas as pd
-from predictor.batchgenerators.utilities.file_and_folder_operations import *
 from predictor.configuration import default_num_processes
-from predictor.imageio.base_reader_writer import BaseReaderWriter
-from predictor.imageio.reader_writer_registry import determine_reader_writer_from_dataset_json
 from predictor.paths import nnUNet_raw, nnUNet_preprocessed
+
+from predictor.utilities.file_and_folder_operations import *
+from predictor.common.base_reader_writer import BaseReaderWriter
+from predictor.common.reader_writer_registry import determine_reader_writer_from_dataset_json
 from predictor.utilities.dataset_name_id_conversion import maybe_convert_to_dataset_name
-from predictor.utilities.utils import get_identifiers_from_splitted_dataset_folder, \
-    get_filenames_of_train_images_and_targets
+from predictor.utilities.utils import get_filenames_of_train_images_and_targets
 
 color_cycle = (
     "000000",
@@ -131,7 +130,7 @@ def plot_overlay(image_file: str, segmentation_file: str, image_reader_writer: B
                  overlay_intensity: float = 0.6):
     import matplotlib.pyplot as plt
 
-    image, props = image_reader_writer.read_images((image_file, ))
+    image, props = image_reader_writer.read_images((image_file,))
     image = image[0]
     seg, props_seg = image_reader_writer.read_seg(segmentation_file)
     seg = seg[0]
@@ -259,7 +258,6 @@ def entry_point_generate_overlay():
                              '3d_fullres if available, else 2d')
     parser.add_argument('-overlay_intensity', type=float, required=False, default=0.6,
                         help='overlay intensity. Higher = brighter/less transparent')
-
 
     args = parser.parse_args()
 

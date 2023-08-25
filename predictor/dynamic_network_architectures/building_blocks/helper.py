@@ -1,4 +1,5 @@
 from typing import Type
+
 import numpy as np
 import torch.nn
 from torch import nn
@@ -228,7 +229,7 @@ def get_default_network_config(dimension: int = 2,
     elif norm_type == "in":
         config['norm_op'] = get_matching_instancenorm(dimension=dimension)
 
-    config['norm_op_kwargs'] = None # this will use defaults
+    config['norm_op_kwargs'] = None  # this will use defaults
 
     if nonlin == "LeakyReLU":
         config['nonlin'] = nn.LeakyReLU

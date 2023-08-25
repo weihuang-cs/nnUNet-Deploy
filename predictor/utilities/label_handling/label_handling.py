@@ -1,17 +1,17 @@
 from __future__ import annotations
+
 from time import time
+from typing import TYPE_CHECKING
 from typing import Union, List, Tuple, Type
 
 import numpy as np
 import torch
-import predictor
-from predictor.common.data_ops.utilities import bounding_box_to_slice
-from predictor.batchgenerators.utilities.file_and_folder_operations import join
 
+import predictor
+from predictor.utilities.file_and_folder_operations import join
+from predictor.common.utilities import bounding_box_to_slice
 from predictor.utilities.find_class_by_name import recursive_find_python_class
 from predictor.utilities.helpers import softmax_helper_dim0
-
-from typing import TYPE_CHECKING
 
 # see https://adamj.eu/tech/2021/05/13/python-type-hints-how-to-fix-circular-imports/
 if TYPE_CHECKING:
