@@ -36,13 +36,18 @@ def convert_conv_op_to_dim(conv_op: Type[_ConvNd]) -> int:
     elif conv_op == nn.Conv3d:
         return 3
     else:
-        raise ValueError("Unknown dimension. Only 1d 2d and 3d conv are supported. got %s" % str(conv_op))
+        raise ValueError(
+            "Unknown dimension. Only 1d 2d and 3d conv are supported. got %s"
+            % str(conv_op)
+        )
 
 
-def get_matching_pool_op(conv_op: Type[_ConvNd] = None,
-                         dimension: int = None,
-                         adaptive=False,
-                         pool_type: str = 'avg') -> Type[torch.nn.Module]:
+def get_matching_pool_op(
+    conv_op: Type[_ConvNd] = None,
+    dimension: int = None,
+    adaptive=False,
+    pool_type: str = "avg",
+) -> Type[torch.nn.Module]:
     """
     You MUST set EITHER conv_op OR dimension. Do not set both!
     :param conv_op:
@@ -51,52 +56,55 @@ def get_matching_pool_op(conv_op: Type[_ConvNd] = None,
     :param pool_type: either 'avg' or 'max'
     :return:
     """
-    assert not ((conv_op is not None) and (dimension is not None)), \
-        "You MUST set EITHER conv_op OR dimension. Do not set both!"
-    assert pool_type in ['avg', 'max'], 'pool_type must be either avg or max'
+    assert not (
+        (conv_op is not None) and (dimension is not None)
+    ), "You MUST set EITHER conv_op OR dimension. Do not set both!"
+    assert pool_type in ["avg", "max"], "pool_type must be either avg or max"
     if conv_op is not None:
         dimension = convert_conv_op_to_dim(conv_op)
-    assert dimension in [1, 2, 3], 'Dimension must be 1, 2 or 3'
+    assert dimension in [1, 2, 3], "Dimension must be 1, 2 or 3"
 
     if conv_op is not None:
         dimension = convert_conv_op_to_dim(conv_op)
 
     if dimension == 1:
-        if pool_type == 'avg':
+        if pool_type == "avg":
             if adaptive:
                 return nn.AdaptiveAvgPool1d
             else:
                 return nn.AvgPool1d
-        elif pool_type == 'max':
+        elif pool_type == "max":
             if adaptive:
                 return nn.AdaptiveMaxPool1d
             else:
                 return nn.MaxPool1d
     elif dimension == 2:
-        if pool_type == 'avg':
+        if pool_type == "avg":
             if adaptive:
                 return nn.AdaptiveAvgPool2d
             else:
                 return nn.AvgPool2d
-        elif pool_type == 'max':
+        elif pool_type == "max":
             if adaptive:
                 return nn.AdaptiveMaxPool2d
             else:
                 return nn.MaxPool2d
     elif dimension == 3:
-        if pool_type == 'avg':
+        if pool_type == "avg":
             if adaptive:
                 return nn.AdaptiveAvgPool3d
             else:
                 return nn.AvgPool3d
-        elif pool_type == 'max':
+        elif pool_type == "max":
             if adaptive:
                 return nn.AdaptiveMaxPool3d
             else:
                 return nn.MaxPool3d
 
 
-def get_matching_instancenorm(conv_op: Type[_ConvNd] = None, dimension: int = None) -> Type[_InstanceNorm]:
+def get_matching_instancenorm(
+    conv_op: Type[_ConvNd] = None, dimension: int = None
+) -> Type[_InstanceNorm]:
     """
     You MUST set EITHER conv_op OR dimension. Do not set both!
 
@@ -104,12 +112,13 @@ def get_matching_instancenorm(conv_op: Type[_ConvNd] = None, dimension: int = No
     :param dimension:
     :return:
     """
-    assert not ((conv_op is not None) and (dimension is not None)), \
-        "You MUST set EITHER conv_op OR dimension. Do not set both!"
+    assert not (
+        (conv_op is not None) and (dimension is not None)
+    ), "You MUST set EITHER conv_op OR dimension. Do not set both!"
     if conv_op is not None:
         dimension = convert_conv_op_to_dim(conv_op)
     if dimension is not None:
-        assert dimension in [1, 2, 3], 'Dimension must be 1, 2 or 3'
+        assert dimension in [1, 2, 3], "Dimension must be 1, 2 or 3"
     if dimension == 1:
         return nn.InstanceNorm1d
     elif dimension == 2:
@@ -118,7 +127,9 @@ def get_matching_instancenorm(conv_op: Type[_ConvNd] = None, dimension: int = No
         return nn.InstanceNorm3d
 
 
-def get_matching_convtransp(conv_op: Type[_ConvNd] = None, dimension: int = None) -> Type[_ConvTransposeNd]:
+def get_matching_convtransp(
+    conv_op: Type[_ConvNd] = None, dimension: int = None
+) -> Type[_ConvTransposeNd]:
     """
     You MUST set EITHER conv_op OR dimension. Do not set both!
 
@@ -126,11 +137,12 @@ def get_matching_convtransp(conv_op: Type[_ConvNd] = None, dimension: int = None
     :param dimension:
     :return:
     """
-    assert not ((conv_op is not None) and (dimension is not None)), \
-        "You MUST set EITHER conv_op OR dimension. Do not set both!"
+    assert not (
+        (conv_op is not None) and (dimension is not None)
+    ), "You MUST set EITHER conv_op OR dimension. Do not set both!"
     if conv_op is not None:
         dimension = convert_conv_op_to_dim(conv_op)
-    assert dimension in [1, 2, 3], 'Dimension must be 1, 2 or 3'
+    assert dimension in [1, 2, 3], "Dimension must be 1, 2 or 3"
     if dimension == 1:
         return nn.ConvTranspose1d
     elif dimension == 2:
@@ -139,7 +151,9 @@ def get_matching_convtransp(conv_op: Type[_ConvNd] = None, dimension: int = None
         return nn.ConvTranspose3d
 
 
-def get_matching_batchnorm(conv_op: Type[_ConvNd] = None, dimension: int = None) -> Type[_BatchNorm]:
+def get_matching_batchnorm(
+    conv_op: Type[_ConvNd] = None, dimension: int = None
+) -> Type[_BatchNorm]:
     """
     You MUST set EITHER conv_op OR dimension. Do not set both!
 
@@ -147,11 +161,12 @@ def get_matching_batchnorm(conv_op: Type[_ConvNd] = None, dimension: int = None)
     :param dimension:
     :return:
     """
-    assert not ((conv_op is not None) and (dimension is not None)), \
-        "You MUST set EITHER conv_op OR dimension. Do not set both!"
+    assert not (
+        (conv_op is not None) and (dimension is not None)
+    ), "You MUST set EITHER conv_op OR dimension. Do not set both!"
     if conv_op is not None:
         dimension = convert_conv_op_to_dim(conv_op)
-    assert dimension in [1, 2, 3], 'Dimension must be 1, 2 or 3'
+    assert dimension in [1, 2, 3], "Dimension must be 1, 2 or 3"
     if dimension == 1:
         return nn.BatchNorm1d
     elif dimension == 2:
@@ -160,7 +175,9 @@ def get_matching_batchnorm(conv_op: Type[_ConvNd] = None, dimension: int = None)
         return nn.BatchNorm3d
 
 
-def get_matching_dropout(conv_op: Type[_ConvNd] = None, dimension: int = None) -> Type[_DropoutNd]:
+def get_matching_dropout(
+    conv_op: Type[_ConvNd] = None, dimension: int = None
+) -> Type[_DropoutNd]:
     """
     You MUST set EITHER conv_op OR dimension. Do not set both!
 
@@ -168,9 +185,10 @@ def get_matching_dropout(conv_op: Type[_ConvNd] = None, dimension: int = None) -
     :param dimension:
     :return:
     """
-    assert not ((conv_op is not None) and (dimension is not None)), \
-        "You MUST set EITHER conv_op OR dimension. Do not set both!"
-    assert dimension in [1, 2, 3], 'Dimension must be 1, 2 or 3'
+    assert not (
+        (conv_op is not None) and (dimension is not None)
+    ), "You MUST set EITHER conv_op OR dimension. Do not set both!"
+    assert dimension in [1, 2, 3], "Dimension must be 1, 2 or 3"
     if dimension == 1:
         return nn.Dropout
     elif dimension == 2:
@@ -199,9 +217,9 @@ def maybe_convert_scalar_to_list(conv_op, scalar):
         return scalar
 
 
-def get_default_network_config(dimension: int = 2,
-                               nonlin: str = "ReLU",
-                               norm_type: str = "bn") -> dict:
+def get_default_network_config(
+    dimension: int = 2, nonlin: str = "ReLU", norm_type: str = "bn"
+) -> dict:
     """
     Use this to get a standard configuration. A network configuration looks like this:
 
@@ -222,22 +240,25 @@ def get_default_network_config(dimension: int = 2,
     :return: dict
     """
     config = {}
-    config['conv_op'] = convert_dim_to_conv_op(dimension)
-    config['dropout_op'] = get_matching_dropout(dimension=dimension)
+    config["conv_op"] = convert_dim_to_conv_op(dimension)
+    config["dropout_op"] = get_matching_dropout(dimension=dimension)
     if norm_type == "bn":
-        config['norm_op'] = get_matching_batchnorm(dimension=dimension)
+        config["norm_op"] = get_matching_batchnorm(dimension=dimension)
     elif norm_type == "in":
-        config['norm_op'] = get_matching_instancenorm(dimension=dimension)
+        config["norm_op"] = get_matching_instancenorm(dimension=dimension)
 
-    config['norm_op_kwargs'] = None  # this will use defaults
+    config["norm_op_kwargs"] = None  # this will use defaults
 
     if nonlin == "LeakyReLU":
-        config['nonlin'] = nn.LeakyReLU
-        config['nonlin_kwargs'] = {'negative_slope': 1e-2, 'inplace': True}
+        config["nonlin"] = nn.LeakyReLU
+        config["nonlin_kwargs"] = {"negative_slope": 1e-2, "inplace": True}
     elif nonlin == "ReLU":
-        config['nonlin'] = nn.ReLU
-        config['nonlin_kwargs'] = {'inplace': True}
+        config["nonlin"] = nn.ReLU
+        config["nonlin_kwargs"] = {"inplace": True}
     else:
-        raise NotImplementedError('Unknown nonlin %s. Only "LeakyReLU" and "ReLU" are supported for now' % nonlin)
+        raise NotImplementedError(
+            'Unknown nonlin %s. Only "LeakyReLU" and "ReLU" are supported for now'
+            % nonlin
+        )
 
     return config

@@ -138,7 +138,7 @@ cons:
 - unsuited for large number of images as all images must be held in RAM
 
 ```python
-    from predictor.common.simpleitk_reader_writer import SimpleITKIO
+    from predictor.data_io.simpleitk_reader_writer import SimpleITKIO
 
 img, props = SimpleITKIO().read_images([join(nnUNet_raw, 'Dataset003_Liver/imagesTs/liver_147_0000.nii.gz')])
 img2, props2 = SimpleITKIO().read_images([join(nnUNet_raw, 'Dataset003_Liver/imagesTs/liver_146_0000.nii.gz')])

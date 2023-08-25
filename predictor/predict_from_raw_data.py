@@ -29,7 +29,10 @@ from predictor.export_prediction import (
     convert_predicted_logits_to_segmentation_with_correct_shape,
 )
 from predictor.common.utils import create_lists_from_splitted_dataset_folder
-from predictor.sliding_window_prediction import compute_gaussian, compute_steps_for_sliding_window
+from predictor.sliding_window_prediction import (
+    compute_gaussian,
+    compute_steps_for_sliding_window,
+)
 from predictor.common.file_path_utilities import (
     check_workers_alive_and_busy,
 )
@@ -42,15 +45,15 @@ from predictor.common.plans_handler import PlansManager
 
 class nnUNetPredictor(object):
     def __init__(
-            self,
-            tile_step_size: float = 0.5,
-            use_gaussian: bool = True,
-            use_mirroring: bool = True,
-            perform_everything_on_gpu: bool = True,
-            device: torch.device = torch.device("cuda"),
-            verbose: bool = False,
-            verbose_preprocessing: bool = False,
-            allow_tqdm: bool = True,
+        self,
+        tile_step_size: float = 0.5,
+        use_gaussian: bool = True,
+        use_mirroring: bool = True,
+        perform_everything_on_gpu: bool = True,
+        device: torch.device = torch.device("cuda"),
+        verbose: bool = False,
+        verbose_preprocessing: bool = False,
+        allow_tqdm: bool = True,
     ):
         self.verbose = verbose
         self.verbose_preprocessing = verbose_preprocessing
@@ -83,10 +86,10 @@ class nnUNetPredictor(object):
         self.perform_everything_on_gpu = perform_everything_on_gpu
 
     def initialize_from_trained_model_folder(
-            self,
-            model_training_output_dir: str,
-            use_folds: Union[Tuple[Union[int, str]], None],
-            checkpoint_name: str = "checkpoint_final.pth",
+        self,
+        model_training_output_dir: str,
+        use_folds: Union[Tuple[Union[int, str]], None],
+        checkpoint_name: str = "checkpoint_final.pth",
     ):
         """
         This is used when making predictions with a trained model
@@ -158,14 +161,14 @@ class nnUNetPredictor(object):
         return use_folds
 
     def _manage_input_and_output_lists(
-            self,
-            list_of_lists_or_source_folder: Union[str, List[List[str]]],
-            output_folder_or_list_of_truncated_output_files: Union[None, str, List[str]],
-            folder_with_segs_from_prev_stage: str = None,
-            overwrite: bool = True,
-            part_id: int = 0,
-            num_parts: int = 1,
-            save_probabilities: bool = False,
+        self,
+        list_of_lists_or_source_folder: Union[str, List[List[str]]],
+        output_folder_or_list_of_truncated_output_files: Union[None, str, List[str]],
+        folder_with_segs_from_prev_stage: str = None,
+        overwrite: bool = True,
+        part_id: int = 0,
+        num_parts: int = 1,
+        save_probabilities: bool = False,
     ):
         if isinstance(list_of_lists_or_source_folder, str):
             list_of_lists_or_source_folder = create_lists_from_splitted_dataset_folder(
@@ -175,8 +178,8 @@ class nnUNetPredictor(object):
             f"There are {len(list_of_lists_or_source_folder)} cases in the source folder"
         )
         list_of_lists_or_source_folder = list_of_lists_or_source_folder[
-                                         part_id::num_parts
-                                         ]
+            part_id::num_parts
+        ]
         caseids = [
             os.path.basename(i[0])[: -(len(self.dataset_json["file_ending"]) + 5)]
             for i in list_of_lists_or_source_folder
@@ -231,16 +234,16 @@ class nnUNetPredictor(object):
         )
 
     def predict_from_files(
-            self,
-            list_of_lists_or_source_folder: Union[str, List[List[str]]],
-            output_folder_or_list_of_truncated_output_files: Union[str, None, List[str]],
-            save_probabilities: bool = False,
-            overwrite: bool = True,
-            num_processes_preprocessing: int = default_num_processes,
-            num_processes_segmentation_export: int = default_num_processes,
-            folder_with_segs_from_prev_stage: str = None,
-            num_parts: int = 1,
-            part_id: int = 0,
+        self,
+        list_of_lists_or_source_folder: Union[str, List[List[str]]],
+        output_folder_or_list_of_truncated_output_files: Union[str, None, List[str]],
+        save_probabilities: bool = False,
+        overwrite: bool = True,
+        num_processes_preprocessing: int = default_num_processes,
+        num_processes_segmentation_export: int = default_num_processes,
+        folder_with_segs_from_prev_stage: str = None,
+        num_parts: int = 1,
+        part_id: int = 0,
     ):
         """
         This is nnU-Net's default function for making predictions. It works best for batch predictions
@@ -317,11 +320,11 @@ class nnUNetPredictor(object):
         )
 
     def _internal_get_data_iterator_from_lists_of_filenames(
-            self,
-            input_list_of_lists: List[List[str]],
-            seg_from_prev_stage_files: Union[List[str], None],
-            output_filenames_truncated: Union[List[str], None],
-            num_processes: int,
+        self,
+        input_list_of_lists: List[List[str]],
+        seg_from_prev_stage_files: Union[List[str], None],
+        output_filenames_truncated: Union[List[str], None],
+        num_processes: int,
     ):
         return preprocessing_iterator_fromfiles(
             input_list_of_lists,
@@ -336,14 +339,14 @@ class nnUNetPredictor(object):
         )
 
     def get_data_iterator_from_raw_npy_data(
-            self,
-            image_or_list_of_images: Union[np.ndarray, List[np.ndarray]],
-            segs_from_prev_stage_or_list_of_segs_from_prev_stage: Union[
-                None, np.ndarray, List[np.ndarray]
-            ],
-            properties_or_list_of_properties: Union[dict, List[dict]],
-            truncated_ofname: Union[str, List[str], None],
-            num_processes: int = 3,
+        self,
+        image_or_list_of_images: Union[np.ndarray, List[np.ndarray]],
+        segs_from_prev_stage_or_list_of_segs_from_prev_stage: Union[
+            None, np.ndarray, List[np.ndarray]
+        ],
+        properties_or_list_of_properties: Union[dict, List[dict]],
+        truncated_ofname: Union[str, List[str], None],
+        num_processes: int = 3,
     ):
         list_of_images = (
             [image_or_list_of_images]
@@ -379,16 +382,16 @@ class nnUNetPredictor(object):
         return pp
 
     def predict_from_list_of_npy_arrays(
-            self,
-            image_or_list_of_images: Union[np.ndarray, List[np.ndarray]],
-            segs_from_prev_stage_or_list_of_segs_from_prev_stage: Union[
-                None, np.ndarray, List[np.ndarray]
-            ],
-            properties_or_list_of_properties: Union[dict, List[dict]],
-            truncated_ofname: Union[str, List[str], None],
-            num_processes: int = 3,
-            save_probabilities: bool = False,
-            num_processes_segmentation_export: int = default_num_processes,
+        self,
+        image_or_list_of_images: Union[np.ndarray, List[np.ndarray]],
+        segs_from_prev_stage_or_list_of_segs_from_prev_stage: Union[
+            None, np.ndarray, List[np.ndarray]
+        ],
+        properties_or_list_of_properties: Union[dict, List[dict]],
+        truncated_ofname: Union[str, List[str], None],
+        num_processes: int = 3,
+        save_probabilities: bool = False,
+        num_processes_segmentation_export: int = default_num_processes,
     ):
         iterator = self.get_data_iterator_from_raw_npy_data(
             image_or_list_of_images,
@@ -402,22 +405,21 @@ class nnUNetPredictor(object):
         )
 
     def predict_from_data_iterator(
-            self,
-            data_iterator,
-            save_probabilities: bool = False,
-            num_processes_segmentation_export: int = default_num_processes,
+        self,
+        data_iterator,
+        save_probabilities: bool = False,
+        num_processes_segmentation_export: int = default_num_processes,
     ):
         """
         each element returned by data_iterator must be a dict with 'data', 'ofile' and 'data_properites' keys!
         If 'ofile' is None, the result will be returned instead of written to a file
         """
         with multiprocessing.get_context("spawn").Pool(
-                num_processes_segmentation_export
+            num_processes_segmentation_export
         ) as export_pool:
             worker_list = [i for i in export_pool._pool]
             r = []
             for preprocessed in data_iterator:
-                print(preprocessed.keys())
                 data = preprocessed["data"]
                 if isinstance(data, str):
                     delfile = data
@@ -505,12 +507,12 @@ class nnUNetPredictor(object):
         return ret
 
     def predict_single_npy_array(
-            self,
-            input_image: np.ndarray,
-            image_properties: dict,
-            segmentation_previous_stage: np.ndarray = None,
-            output_file_truncated: str = None,
-            save_or_return_probabilities: bool = False,
+        self,
+        input_image: np.ndarray,
+        image_properties: dict,
+        segmentation_previous_stage: np.ndarray = None,
+        output_file_truncated: str = None,
+        save_or_return_probabilities: bool = False,
     ):
         """
         image_properties must only have a 'spacing' key!
@@ -693,7 +695,7 @@ class nnUNetPredictor(object):
             # check for invalid numbers in mirror_axes
             # x should be 5d for 3d images and 4d for 2d. so the max value of mirror_axes cannot exceed len(x.shape) - 3
             assert (
-                    max(mirror_axes) <= len(x.shape) - 3
+                max(mirror_axes) <= len(x.shape) - 3
             ), "mirror_axes does not match the dimension of the input!"
 
             num_predictons = 2 ** len(mirror_axes)
@@ -717,7 +719,7 @@ class nnUNetPredictor(object):
         return prediction
 
     def predict_sliding_window_return_logits(
-            self, input_image: torch.Tensor
+        self, input_image: torch.Tensor
     ) -> Union[np.ndarray, torch.Tensor]:
         assert isinstance(input_image, torch.Tensor)
         self.network = self.network.to(self.device)
@@ -733,10 +735,10 @@ class nnUNetPredictor(object):
         # So autocast will only be active if we have a cuda device.
         with torch.no_grad():
             with torch.cuda.amp.autocast(
-                    enabled=True
+                enabled=True
             ) if self.device.type == "cuda" else dummy_context():
                 assert (
-                        len(input_image.shape) == 4
+                    len(input_image.shape) == 4
                 ), "input_image must be a 4D np.ndarray or torch.Tensor (c, x, y, z)"
 
                 if self.verbose:

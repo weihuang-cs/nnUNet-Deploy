@@ -1,7 +1,9 @@
 from torch import nn
 
 
-def drop_path(x, drop_prob: float = 0., training: bool = False, scale_by_keep: bool = True):
+def drop_path(
+    x, drop_prob: float = 0.0, training: bool = False, scale_by_keep: bool = True
+):
     """
     This function is taken from the timm package (https://github.com/rwightman/pytorch-image-models/blob/master/timm/models/layers/drop.py).
 
@@ -12,10 +14,12 @@ def drop_path(x, drop_prob: float = 0., training: bool = False, scale_by_keep: b
     changing the layer and argument names to 'drop path' rather than mix DropConnect as a layer name and use
     'survival rate' as the argument.
     """
-    if drop_prob == 0. or not training:
+    if drop_prob == 0.0 or not training:
         return x
     keep_prob = 1 - drop_prob
-    shape = (x.shape[0],) + (1,) * (x.ndim - 1)  # work with diff dim tensors, not just 2D ConvNets
+    shape = (x.shape[0],) + (1,) * (
+        x.ndim - 1
+    )  # work with diff dim tensors, not just 2D ConvNets
     random_tensor = x.new_empty(shape).bernoulli_(keep_prob)
     if keep_prob > 0.0 and scale_by_keep:
         random_tensor.div_(keep_prob)
@@ -29,7 +33,7 @@ class DropPath(nn.Module):
     Drop paths (Stochastic Depth) per sample  (when applied in main path of residual blocks).
     """
 
-    def __init__(self, drop_prob: float = 0., scale_by_keep: bool = True):
+    def __init__(self, drop_prob: float = 0.0, scale_by_keep: bool = True):
         super(DropPath, self).__init__()
         self.drop_prob = drop_prob
         self.scale_by_keep = scale_by_keep
@@ -53,12 +57,23 @@ class SqueezeExcite(nn.Module):
     """
 
     def __init__(
-            self, channels, conv_op, rd_ratio=1. / 16, rd_channels=None, rd_divisor=8, add_maxpool=False,
-            act_layer=nn.ReLU, norm_layer=None, gate_layer=nn.Sigmoid):
+        self,
+        channels,
+        conv_op,
+        rd_ratio=1.0 / 16,
+        rd_channels=None,
+        rd_divisor=8,
+        add_maxpool=False,
+        act_layer=nn.ReLU,
+        norm_layer=None,
+        gate_layer=nn.Sigmoid,
+    ):
         super(SqueezeExcite, self).__init__()
         self.add_maxpool = add_maxpool
         if not rd_channels:
-            rd_channels = make_divisible(channels * rd_ratio, rd_divisor, round_limit=0.)
+            rd_channels = make_divisible(
+                channels * rd_ratio, rd_divisor, round_limit=0.0
+            )
         self.fc1 = conv_op(channels, rd_channels, kernel_size=1, bias=True)
         self.bn = norm_layer(rd_channels) if norm_layer else nn.Identity()
         self.act = act_layer(inplace=True)
@@ -76,7 +91,7 @@ class SqueezeExcite(nn.Module):
         return x * self.gate(x_se)
 
 
-def make_divisible(v, divisor=8, min_value=None, round_limit=.9):
+def make_divisible(v, divisor=8, min_value=None, round_limit=0.9):
     """
     This function is taken from the timm package (https://github.com/rwightman/pytorch-image-models/blob/b7cb8d0337b3e7b50516849805ddb9be5fc11644/timm/models/layers/helpers.py#L25)
     """

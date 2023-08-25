@@ -47,7 +47,9 @@ class BaseReaderWriter(ABC):
         return True
 
     @abstractmethod
-    def read_images(self, image_fnames: Union[List[str], Tuple[str, ...]]) -> Tuple[np.ndarray, dict]:
+    def read_images(
+        self, image_fnames: Union[List[str], Tuple[str, ...]]
+    ) -> Tuple[np.ndarray, dict]:
         """
         Reads a sequence of images and returns a 4d (!) np.ndarray along with a dictionary. The 4d array must have the
         modalities (or color channels, or however you would like to call them) in its first axis, followed by the
@@ -119,13 +121,11 @@ class BaseReaderWriter(ABC):
 
 
 class SimpleITKIO(BaseReaderWriter):
-    supported_file_endings = [
-        '.nii.gz',
-        '.nrrd',
-        '.mha'
-    ]
+    supported_file_endings = [".nii.gz", ".nrrd", ".mha"]
 
-    def read_images(self, image_fnames: Union[List[str], Tuple[str, ...]]) -> Tuple[np.ndarray, dict]:
+    def read_images(
+        self, image_fnames: Union[List[str], Tuple[str, ...]]
+    ) -> Tuple[np.ndarray, dict]:
         images = []
         spacings = []
         origins = []
@@ -142,7 +142,9 @@ class SimpleITKIO(BaseReaderWriter):
                 # 2d
                 npy_image = npy_image[None, None]
                 max_spacing = max(spacings[-1])
-                spacings_for_nnunet.append((max_spacing * 999, *list(spacings[-1])[::-1]))
+                spacings_for_nnunet.append(
+                    (max_spacing * 999, *list(spacings[-1])[::-1])
+                )
             elif len(npy_image.shape) == 3:
                 # 3d, as in original nnunet
                 npy_image = npy_image[None]
@@ -152,61 +154,70 @@ class SimpleITKIO(BaseReaderWriter):
                 spacings_for_nnunet.append(list(spacings[-1])[::-1][1:])
                 pass
             else:
-                raise RuntimeError("Unexpected number of dimensions: %d in file %s" % (len(npy_image.shape), f))
+                raise RuntimeError(
+                    "Unexpected number of dimensions: %d in file %s"
+                    % (len(npy_image.shape), f)
+                )
 
             images.append(npy_image)
             spacings_for_nnunet[-1] = list(np.abs(spacings_for_nnunet[-1]))
 
         if not self._check_all_same([i.shape for i in images]):
-            print('ERROR! Not all input images have the same shape!')
-            print('Shapes:')
+            print("ERROR! Not all input images have the same shape!")
+            print("Shapes:")
             print([i.shape for i in images])
-            print('Image files:')
+            print("Image files:")
             print(image_fnames)
             raise RuntimeError()
         if not self._check_all_same(spacings):
-            print('ERROR! Not all input images have the same spacing!')
-            print('Spacings:')
+            print("ERROR! Not all input images have the same spacing!")
+            print("Spacings:")
             print(spacings)
-            print('Image files:')
+            print("Image files:")
             print(image_fnames)
             raise RuntimeError()
         if not self._check_all_same(origins):
-            print('WARNING! Not all input images have the same origin!')
-            print('Origins:')
+            print("WARNING! Not all input images have the same origin!")
+            print("Origins:")
             print(origins)
-            print('Image files:')
+            print("Image files:")
             print(image_fnames)
-            print('It is up to you to decide whether that\'s a problem. You should run nnUNet_plot_dataset_pngs to verify '
-                  'that segmentations and data overlap.')
+            print(
+                "It is up to you to decide whether that's a problem. You should run nnUNet_plot_dataset_pngs to verify "
+                "that segmentations and data overlap."
+            )
         if not self._check_all_same(directions):
-            print('WARNING! Not all input images have the same direction!')
-            print('Directions:')
+            print("WARNING! Not all input images have the same direction!")
+            print("Directions:")
             print(directions)
-            print('Image files:')
+            print("Image files:")
             print(image_fnames)
-            print('It is up to you to decide whether that\'s a problem. You should run nnUNet_plot_dataset_pngs to verify '
-                  'that segmentations and data overlap.')
+            print(
+                "It is up to you to decide whether that's a problem. You should run nnUNet_plot_dataset_pngs to verify "
+                "that segmentations and data overlap."
+            )
         if not self._check_all_same(spacings_for_nnunet):
-            print('ERROR! Not all input images have the same spacing_for_nnunet! (This should not happen and must be a '
-                  'bug. Please report!')
-            print('spacings_for_nnunet:')
+            print(
+                "ERROR! Not all input images have the same spacing_for_nnunet! (This should not happen and must be a "
+                "bug. Please report!"
+            )
+            print("spacings_for_nnunet:")
             print(spacings_for_nnunet)
-            print('Image files:')
+            print("Image files:")
             print(image_fnames)
             raise RuntimeError()
 
         stacked_images = np.vstack(images)
         dict = {
-            'sitk_stuff': {
+            "sitk_stuff": {
                 # this saves the sitk geometry information. This part is NOT used by nnU-Net!
-                'spacing': spacings[0],
-                'origin': origins[0],
-                'direction': directions[0]
+                "spacing": spacings[0],
+                "origin": origins[0],
+                "direction": directions[0],
             },
             # the spacing is inverted with [::-1] because sitk returns the spacing in the wrong order lol. Image arrays
             # are returned x,y,z but spacing is returned z,y,x. Duh.
-            'spacing': spacings_for_nnunet[0]
+            "spacing": spacings_for_nnunet[0],
         }
         return stacked_images.astype(np.float32), dict
 
@@ -214,16 +225,18 @@ class SimpleITKIO(BaseReaderWriter):
         return self.read_images((seg_fname,))
 
     def write_seg(self, seg: np.ndarray, output_fname: str, properties: dict) -> None:
-        assert len(seg.shape) == 3, 'segmentation must be 3d. If you are exporting a 2d segmentation, please provide it as shape 1,x,y'
-        output_dimension = len(properties['sitk_stuff']['spacing'])
+        assert (
+            len(seg.shape) == 3
+        ), "segmentation must be 3d. If you are exporting a 2d segmentation, please provide it as shape 1,x,y"
+        output_dimension = len(properties["sitk_stuff"]["spacing"])
         assert 1 < output_dimension < 4
         if output_dimension == 2:
             seg = seg[0]
 
         itk_image = sitk.GetImageFromArray(seg.astype(np.uint8))
-        itk_image.SetSpacing(properties['sitk_stuff']['spacing'])
-        itk_image.SetOrigin(properties['sitk_stuff']['origin'])
-        itk_image.SetDirection(properties['sitk_stuff']['direction'])
+        itk_image.SetSpacing(properties["sitk_stuff"]["spacing"])
+        itk_image.SetOrigin(properties["sitk_stuff"]["origin"])
+        itk_image.SetDirection(properties["sitk_stuff"]["direction"])
 
         sitk.WriteImage(itk_image, output_fname)
 
@@ -233,9 +246,13 @@ def subdirs(folder, join=True, prefix=None, suffix=None, sort=True):
         l = os.path.join
     else:
         l = lambda x, y: y
-    res = [l(folder, i) for i in os.listdir(folder) if os.path.isdir(os.path.join(folder, i))
-           and (prefix is None or i.startswith(prefix))
-           and (suffix is None or i.endswith(suffix))]
+    res = [
+        l(folder, i)
+        for i in os.listdir(folder)
+        if os.path.isdir(os.path.join(folder, i))
+        and (prefix is None or i.startswith(prefix))
+        and (suffix is None or i.endswith(suffix))
+    ]
     if sort:
         res.sort()
     return res
@@ -246,9 +263,13 @@ def subfiles(folder, join=True, prefix=None, suffix=None, sort=True):
         l = os.path.join
     else:
         l = lambda x, y: y
-    res = [l(folder, i) for i in os.listdir(folder) if os.path.isfile(os.path.join(folder, i))
-           and (prefix is None or i.startswith(prefix))
-           and (suffix is None or i.endswith(suffix))]
+    res = [
+        l(folder, i)
+        for i in os.listdir(folder)
+        if os.path.isfile(os.path.join(folder, i))
+        and (prefix is None or i.startswith(prefix))
+        and (suffix is None or i.endswith(suffix))
+    ]
     if sort:
         res.sort()
     return res
@@ -261,22 +282,25 @@ def maybe_mkdir_p(directory):
     directory = os.path.abspath(directory)
     splits = directory.split("/")[1:]
     for i in range(0, len(splits)):
-        if not os.path.isdir(os.path.join("/", *splits[:i + 1])):
+        if not os.path.isdir(os.path.join("/", *splits[: i + 1])):
             try:
-                os.mkdir(os.path.join("/", *splits[:i + 1]))
+                os.mkdir(os.path.join("/", *splits[: i + 1]))
             except FileExistsError:
                 # this can sometimes happen when two jobs try to create the same directory at the same time,
                 # especially on network drives.
-                print("WARNING: Folder %s already existed and does not need to be created" % directory)
+                print(
+                    "WARNING: Folder %s already existed and does not need to be created"
+                    % directory
+                )
 
 
-def load_pickle(file, mode='rb'):
+def load_pickle(file, mode="rb"):
     with open(file, mode) as f:
         a = pickle.load(f)
     return a
 
 
-def write_pickle(obj, file, mode='wb'):
+def write_pickle(obj, file, mode="wb"):
     with open(file, mode) as f:
         pickle.dump(obj, f)
 
@@ -285,13 +309,13 @@ save_pickle = write_pickle
 
 
 def load_json(file):
-    with open(file, 'r') as f:
+    with open(file, "r") as f:
         a = json.load(f)
     return a
 
 
 def save_json(obj, file, indent=4, sort_keys=True):
-    with open(file, 'w') as f:
+    with open(file, "w") as f:
         json.dump(obj, f, sort_keys=sort_keys, indent=indent)
 
 

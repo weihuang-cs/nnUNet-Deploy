@@ -48,10 +48,11 @@ def softmax_helper_dim1(x: torch.Tensor) -> torch.Tensor:
 
 
 def empty_cache(device: torch.device):
-    if device.type == 'cuda':
+    if device.type == "cuda":
         torch.cuda.empty_cache()
-    elif device.type == 'mps':
+    elif device.type == "mps":
         from torch import mps
+
         mps.empty_cache()
     else:
         pass
@@ -63,6 +64,7 @@ class dummy_context(object):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
+
 
 def recursive_find_python_class(folder: str, class_name: str, current_module: str):
     tr = None
@@ -78,10 +80,15 @@ def recursive_find_python_class(folder: str, class_name: str, current_module: st
         for importer, modname, ispkg in pkgutil.iter_modules([folder]):
             if ispkg:
                 next_current_module = current_module + "." + modname
-                tr = recursive_find_python_class(join(folder, modname), class_name, current_module=next_current_module)
+                tr = recursive_find_python_class(
+                    join(folder, modname),
+                    class_name,
+                    current_module=next_current_module,
+                )
             if tr is not None:
                 break
     return tr
+
 
 def recursive_find_resampling_fn_by_name(resampling_fn: str) -> Callable:
     ret = recursive_find_python_class(
@@ -352,6 +359,7 @@ def pad_nd_image(
         slicer = tuple(slice(*i) for i in pad_list)
         return res, slicer
 
+
 def get_identifiers_from_splitted_dataset_folder(folder: str, file_ending: str):
     files = subfiles(folder, suffix=file_ending, join=False)
     # all files have a 4 digit channel index (_XXXX)
@@ -362,8 +370,9 @@ def get_identifiers_from_splitted_dataset_folder(folder: str, file_ending: str):
     return files
 
 
-def create_lists_from_splitted_dataset_folder(folder: str, file_ending: str, identifiers: List[str] = None) -> List[
-    List[str]]:
+def create_lists_from_splitted_dataset_folder(
+    folder: str, file_ending: str, identifiers: List[str] = None
+) -> List[List[str]]:
     """
     does not rely on dataset.json
     """
@@ -377,22 +386,47 @@ def create_lists_from_splitted_dataset_folder(folder: str, file_ending: str, ide
     return list_of_lists
 
 
-def get_filenames_of_train_images_and_targets(raw_dataset_folder: str, dataset_json: dict = None):
+def get_filenames_of_train_images_and_targets(
+    raw_dataset_folder: str, dataset_json: dict = None
+):
     if dataset_json is None:
-        dataset_json = load_json(join(raw_dataset_folder, 'dataset.json'))
+        dataset_json = load_json(join(raw_dataset_folder, "dataset.json"))
 
-    if 'dataset' in dataset_json.keys():
-        dataset = dataset_json['dataset']
+    if "dataset" in dataset_json.keys():
+        dataset = dataset_json["dataset"]
         for k in dataset.keys():
-            dataset[k]['label'] = os.path.abspath(join(raw_dataset_folder, dataset[k]['label'])) if not os.path.isabs(dataset[k]['label']) else dataset[k]['label']
-            dataset[k]['images'] = [os.path.abspath(join(raw_dataset_folder, i)) if not os.path.isabs(i) else i for i in dataset[k]['images']]
+            dataset[k]["label"] = (
+                os.path.abspath(join(raw_dataset_folder, dataset[k]["label"]))
+                if not os.path.isabs(dataset[k]["label"])
+                else dataset[k]["label"]
+            )
+            dataset[k]["images"] = [
+                os.path.abspath(join(raw_dataset_folder, i))
+                if not os.path.isabs(i)
+                else i
+                for i in dataset[k]["images"]
+            ]
     else:
-        identifiers = get_identifiers_from_splitted_dataset_folder(join(raw_dataset_folder, 'imagesTr'), dataset_json['file_ending'])
-        images = create_lists_from_splitted_dataset_folder(join(raw_dataset_folder, 'imagesTr'), dataset_json['file_ending'], identifiers)
-        segs = [join(raw_dataset_folder, 'labelsTr', i + dataset_json['file_ending']) for i in identifiers]
-        dataset = {i: {'images': im, 'label': se} for i, im, se in zip(identifiers, images, segs)}
+        identifiers = get_identifiers_from_splitted_dataset_folder(
+            join(raw_dataset_folder, "imagesTr"), dataset_json["file_ending"]
+        )
+        images = create_lists_from_splitted_dataset_folder(
+            join(raw_dataset_folder, "imagesTr"),
+            dataset_json["file_ending"],
+            identifiers,
+        )
+        segs = [
+            join(raw_dataset_folder, "labelsTr", i + dataset_json["file_ending"])
+            for i in identifiers
+        ]
+        dataset = {
+            i: {"images": im, "label": se}
+            for i, im, se in zip(identifiers, images, segs)
+        }
     return dataset
 
 
-if __name__ == '__main__':
-    print(get_filenames_of_train_images_and_targets(join(nnUNet_raw, 'Dataset002_Heart')))
+if __name__ == "__main__":
+    print(
+        get_filenames_of_train_images_and_targets(join(nnUNet_raw, "Dataset002_Heart"))
+    )

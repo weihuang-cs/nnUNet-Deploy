@@ -47,7 +47,5 @@ def run():
 
 
 if __name__ == "__main__":
-    tracer = trace.Trace(trace=0, count=1)
-    tracer.runfunc(run)
-    results = tracer.results()
-    results.write_results(coverdir="res/")
+    run()
+
