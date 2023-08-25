@@ -5,7 +5,7 @@ import numpy as np
 import torch
 from scipy.ndimage import gaussian_filter
 
-from predictor.common.utilities import pad_nd_image
+from predictor.common.utils import pad_nd_image
 
 
 @lru_cache(maxsize=2)

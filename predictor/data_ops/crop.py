@@ -1,7 +1,7 @@
 import numpy as np
 
 # Hello! crop_to_nonzero is the function you are looking for. Ignore the rest.
-from predictor.common.utilities import get_bbox_from_mask, bounding_box_to_slice
+from predictor.common.utils import get_bbox_from_mask, bounding_box_to_slice
 
 
 def create_nonzero_mask(data):

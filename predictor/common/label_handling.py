@@ -8,14 +8,14 @@ import numpy as np
 import torch
 
 import predictor
-from predictor.utilities.file_and_folder_operations import join
-from predictor.common.utilities import bounding_box_to_slice
-from predictor.utilities.find_class_by_name import recursive_find_python_class
-from predictor.utilities.helpers import softmax_helper_dim0
+from predictor.common.file_and_folder_operations import join
+from predictor.common.utils import bounding_box_to_slice
+from predictor.common.utils import recursive_find_python_class
+from predictor.common.utils import softmax_helper_dim0
 
 # see https://adamj.eu/tech/2021/05/13/python-type-hints-how-to-fix-circular-imports/
 if TYPE_CHECKING:
-    from predictor.utilities.plans_handling.plans_handler import PlansManager, ConfigurationManager
+    from predictor.common.plans_handler import PlansManager, ConfigurationManager
 
 
 class LabelManager(object):
@@ -239,9 +239,9 @@ def get_labelmanager_class_from_plans(plans: dict) -> Type[LabelManager]:
         print('No label manager specified in plans. Using default: LabelManager')
         return LabelManager
     else:
-        labelmanager_class = recursive_find_python_class(join(predictor.__path__[0], "utilities", "label_handling"),
+        labelmanager_class = recursive_find_python_class(join(predictor.__path__[0], "common"),
                                                          plans['label_manager'],
-                                                         current_module="predictor.utilities.label_handling")
+                                                         current_module="predictor.common")
         return labelmanager_class
 
 

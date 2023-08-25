@@ -3,11 +3,11 @@ from typing import Union, List
 import numpy as np
 import torch
 
-from predictor.utilities.file_and_folder_operations import load_json, save_pickle
+from predictor.common.file_and_folder_operations import load_json, save_pickle
 from predictor.common.configuration import default_num_processes
-from predictor.common.utilities import bounding_box_to_slice
-from predictor.utilities.label_handling.label_handling import LabelManager
-from predictor.utilities.plans_handling.plans_handler import ConfigurationManager, PlansManager
+from predictor.common.utils import bounding_box_to_slice
+from predictor.common.label_handling import LabelManager
+from predictor.common.plans_handler import ConfigurationManager, PlansManager
 
 
 def convert_predicted_logits_to_segmentation_with_correct_shape(predicted_logits: Union[torch.Tensor, np.ndarray],

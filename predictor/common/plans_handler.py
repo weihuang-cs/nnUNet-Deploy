@@ -12,17 +12,16 @@ from torch import nn
 
 import predictor
 from predictor import dynamic_network_architectures
-from predictor.utilities.file_and_folder_operations import load_json, join
+from predictor.common.file_and_folder_operations import load_json, join
+from predictor.common.label_handling import get_labelmanager_class_from_plans
 from predictor.common.reader_writer_registry import recursive_find_reader_writer_by_name
-from predictor.common.utilities import recursive_find_resampling_fn_by_name
-from predictor.utilities.find_class_by_name import recursive_find_python_class
-from predictor.utilities.label_handling.label_handling import get_labelmanager_class_from_plans
+from predictor.common.utils import recursive_find_python_class
+from predictor.common.utils import recursive_find_resampling_fn_by_name
 
 if TYPE_CHECKING:
-    from predictor.utilities.label_handling.label_handling import LabelManager
+    from predictor.common import LabelManager
     from predictor.common.base_reader_writer import BaseReaderWriter
     from predictor.data_ops.processor import DefaultPreprocessor
-    from predictor.experiment_planning.experiment_planners.default_experiment_planner import ExperimentPlanner
 
 
 class ConfigurationManager(object):
@@ -257,15 +256,6 @@ class PlansManager(object):
         return list(self.plans['configurations'].keys())
 
     @property
-    @lru_cache(maxsize=1)
-    def experiment_planner_class(self) -> Type[ExperimentPlanner]:
-        planner_name = self.experiment_planner_name
-        experiment_planner = recursive_find_python_class(join(predictor.__path__[0], "experiment_planning"),
-                                                         planner_name,
-                                                         current_module="predictor.experiment_planning")
-        return experiment_planner
-
-    @property
     def experiment_planner_name(self) -> str:
         return self.plans['experiment_planner_used']
 
@@ -285,19 +275,3 @@ class PlansManager(object):
             if 'foreground_intensity_properties_by_modality' in self.plans.keys():
                 return self.plans['foreground_intensity_properties_by_modality']
         return self.plans['foreground_intensity_properties_per_channel']
-
-
-if __name__ == '__main__':
-    from predictor.paths import nnUNet_preprocessed
-    from predictor.utilities.dataset_name_id_conversion import maybe_convert_to_dataset_name
-
-    plans = load_json(join(nnUNet_preprocessed, maybe_convert_to_dataset_name(3), 'nnUNetPlans.json'))
-    # build new configuration that inherits from 3d_fullres
-    plans['configurations']['3d_fullres_bs4'] = {
-        'batch_size': 4,
-        'inherits_from': '3d_fullres'
-    }
-    # now get plans and configuration managers
-    plans_manager = PlansManager(plans)
-    configuration_manager = plans_manager.get_configuration('3d_fullres_bs4')
-    print(configuration_manager)  # look for batch size 4

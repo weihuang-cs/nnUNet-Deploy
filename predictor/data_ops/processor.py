@@ -11,23 +11,19 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-import multiprocessing
-import shutil
-from time import sleep
 from typing import Union, Tuple
 
 import numpy as np
-from tqdm import tqdm
 
 import predictor
-from predictor.utilities.file_and_folder_operations import *
 from predictor.data_ops.crop import crop_to_nonzero
 from predictor.data_ops.resample import compute_new_shape
-from predictor.utilities.find_class_by_name import recursive_find_python_class
-from predictor.utilities.plans_handling.plans_handler import (
+from predictor.common.utils import recursive_find_python_class
+from predictor.common.plans_handler import (
     PlansManager,
     ConfigurationManager,
 )
+from predictor.common.file_and_folder_operations import *
 
 
 class DefaultPreprocessor(object):
@@ -38,13 +34,13 @@ class DefaultPreprocessor(object):
         """
 
     def run_case_npy(
-            self,
-            data: np.ndarray,
-            seg: Union[np.ndarray, None],
-            properties: dict,
-            plans_manager: PlansManager,
-            configuration_manager: ConfigurationManager,
-            dataset_json: Union[dict, str],
+        self,
+        data: np.ndarray,
+        seg: Union[np.ndarray, None],
+        properties: dict,
+        plans_manager: PlansManager,
+        configuration_manager: ConfigurationManager,
+        dataset_json: Union[dict, str],
     ):
         # let's not mess up the inputs!
         data = np.copy(data)
@@ -138,12 +134,12 @@ class DefaultPreprocessor(object):
         return data, seg
 
     def run_case(
-            self,
-            image_files: List[str],
-            seg_file: Union[str, None],
-            plans_manager: PlansManager,
-            configuration_manager: ConfigurationManager,
-            dataset_json: Union[dict, str],
+        self,
+        image_files: List[str],
+        seg_file: Union[str, None],
+        plans_manager: PlansManager,
+        configuration_manager: ConfigurationManager,
+        dataset_json: Union[dict, str],
     ):
         """
         seg file can be none (test cases)
@@ -177,13 +173,13 @@ class DefaultPreprocessor(object):
         return data, seg, data_properites
 
     def run_case_save(
-            self,
-            output_filename_truncated: str,
-            image_files: List[str],
-            seg_file: str,
-            plans_manager: PlansManager,
-            configuration_manager: ConfigurationManager,
-            dataset_json: Union[dict, str],
+        self,
+        output_filename_truncated: str,
+        image_files: List[str],
+        seg_file: str,
+        plans_manager: PlansManager,
+        configuration_manager: ConfigurationManager,
+        dataset_json: Union[dict, str],
     ):
         data, seg, properties = self.run_case(
             image_files, seg_file, plans_manager, configuration_manager, dataset_json
@@ -194,10 +190,10 @@ class DefaultPreprocessor(object):
 
     @staticmethod
     def _sample_foreground_locations(
-            seg: np.ndarray,
-            classes_or_regions: Union[List[int], List[Tuple[int, ...]]],
-            seed: int = 1234,
-            verbose: bool = False,
+        seg: np.ndarray,
+        classes_or_regions: Union[List[int], List[Tuple[int, ...]]],
+        seed: int = 1234,
+        verbose: bool = False,
     ):
         num_samples = 10000
         min_percent_coverage = 0.01  # at least 1% of the class voxels need to be selected, otherwise it may be too
@@ -230,11 +226,11 @@ class DefaultPreprocessor(object):
         return class_locs
 
     def _normalize(
-            self,
-            data: np.ndarray,
-            seg: np.ndarray,
-            configuration_manager: ConfigurationManager,
-            foreground_intensity_properties_per_channel: dict,
+        self,
+        data: np.ndarray,
+        seg: np.ndarray,
+        configuration_manager: ConfigurationManager,
+        foreground_intensity_properties_per_channel: dict,
     ) -> np.ndarray:
         for c in range(data.shape[0]):
             scheme = configuration_manager.normalization_schemes[c]
@@ -254,16 +250,14 @@ class DefaultPreprocessor(object):
             data[c] = normalizer.run(data[c], seg[0])
         return data
 
-
     def modify_seg_fn(
-            self,
-            seg: np.ndarray,
-            plans_manager: PlansManager,
-            dataset_json: dict,
-            configuration_manager: ConfigurationManager,
+        self,
+        seg: np.ndarray,
+        plans_manager: PlansManager,
+        dataset_json: dict,
+        configuration_manager: ConfigurationManager,
     ) -> np.ndarray:
         # this function will be called at the end of self.run_case. Can be used to change the segmentation
         # after resampling. Useful for experimenting with sparse annotations: I can introduce sparsity after resampling
         # and don't have to create a new dataset each time I modify my experiments
         return seg
-

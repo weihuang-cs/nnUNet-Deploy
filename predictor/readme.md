@@ -54,7 +54,7 @@ Example:
 ```python
     from predictor.paths import nnUNet_results, nnUNet_raw
 import torch
-from predictor.utilities.file_and_folder_operations import join
+from predictor.common import join
 from predictor.inference.predict_from_raw_data import nnUNetPredictor
 
 # instantiate the nnUNetPredictor

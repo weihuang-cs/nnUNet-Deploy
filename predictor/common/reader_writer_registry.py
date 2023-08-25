@@ -2,11 +2,11 @@ import traceback
 from typing import Type
 
 import predictor
-from predictor.utilities.file_and_folder_operations import join
+from predictor.common.file_and_folder_operations import join
 from predictor.common.base_reader_writer import BaseReaderWriter
 from predictor.common.nibabel_reader_writer import NibabelIO, NibabelIOWithReorient
 from predictor.common.simpleitk_reader_writer import SimpleITKIO
-from predictor.utilities.find_class_by_name import recursive_find_python_class
+from predictor.common.utils import recursive_find_python_class
 
 LIST_OF_IO_CLASSES = [
     SimpleITKIO,

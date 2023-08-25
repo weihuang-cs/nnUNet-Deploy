@@ -9,8 +9,7 @@ from typing import Tuple, Union, List
 import numpy as np
 import torch
 from tqdm import tqdm
-
-from predictor.utilities.file_and_folder_operations import (
+from predictor.common.file_and_folder_operations import (
     load_json,
     join,
     isfile,
@@ -19,7 +18,7 @@ from predictor.utilities.file_and_folder_operations import (
     save_json,
 )
 from predictor.common.configuration import default_num_processes
-from predictor.common.utilities import pad_nd_image
+from predictor.common.utils import pad_nd_image
 from predictor.data_iterators import (
     PreprocessAdapterFromNpy,
     preprocessing_iterator_fromfiles,
@@ -29,16 +28,16 @@ from predictor.export_prediction import (
     export_prediction_from_logits,
     convert_predicted_logits_to_segmentation_with_correct_shape,
 )
-from predictor.utilities.utils import create_lists_from_splitted_dataset_folder
+from predictor.common.utils import create_lists_from_splitted_dataset_folder
 from predictor.sliding_window_prediction import compute_gaussian, compute_steps_for_sliding_window
-from predictor.utilities.file_path_utilities import (
+from predictor.common.file_path_utilities import (
     check_workers_alive_and_busy,
 )
-from predictor.utilities.get_network_from_plans import get_network_from_plans
-from predictor.utilities.helpers import empty_cache, dummy_context
-from predictor.utilities.json_export import recursive_fix_for_json_export
-from predictor.utilities.label_handling.label_handling import determine_num_input_channels
-from predictor.utilities.plans_handling.plans_handler import PlansManager
+from predictor.common.get_network_from_plans import get_network_from_plans
+from predictor.common.utils import empty_cache, dummy_context
+from predictor.common.json_export import recursive_fix_for_json_export
+from predictor.common.label_handling import determine_num_input_channels
+from predictor.common.plans_handler import PlansManager
 
 
 class nnUNetPredictor(object):
