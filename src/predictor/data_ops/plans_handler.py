@@ -1,5 +1,4 @@
-from __future__ import annotations
-
+import os
 from copy import deepcopy
 from functools import lru_cache, partial
 
@@ -11,20 +10,19 @@ import numpy as np
 import torch
 from torch import nn
 
-import predictor
+# import predictor
 from predictor import dynamic_network_architectures
 from predictor.common.file_and_folder_operations import load_json, join
-from predictor.common.label_handling import get_labelmanager_class_from_plans
+from predictor.data_ops.label_handling import get_labelmanager_class_from_plans
 from predictor.data_io.reader_writer_registry import (
     recursive_find_reader_writer_by_name,
 )
 from predictor.common.utils import recursive_find_python_class
-from predictor.common.utils import recursive_find_resampling_fn_by_name
+from predictor.data_ops.resample import recursive_find_resampling_fn_by_name
 
-if TYPE_CHECKING:
-    from predictor.common import LabelManager
-    from predictor.data_io.base_reader_writer import BaseReaderWriter
-    from predictor.data_ops.processor import DefaultPreprocessor
+
+from predictor.data_ops.label_handling import LabelManager
+from predictor.data_io.base_reader_writer import BaseReaderWriter
 
 
 class ConfigurationManager(object):
@@ -44,9 +42,9 @@ class ConfigurationManager(object):
 
     @property
     @lru_cache(maxsize=1)
-    def preprocessor_class(self) -> Type[DefaultPreprocessor]:
+    def preprocessor_class(self):
         preprocessor_class = recursive_find_python_class(
-            join(predictor.__path__[0], "data_ops"),
+            os.path.dirname(__file__),
             self.preprocessor_name,
             current_module="predictor.data_ops",
         )
@@ -84,7 +82,7 @@ class ConfigurationManager(object):
     @lru_cache(maxsize=1)
     def UNet_class(self) -> Type[nn.Module]:
         unet_class = recursive_find_python_class(
-            join(predictor.dynamic_network_architectures.__path__[0], "architectures"),
+            join(dynamic_network_architectures.__path__[0], "architectures"),
             self.UNet_class_name,
             current_module="predictor.dynamic_network_architectures.architectures",
         )

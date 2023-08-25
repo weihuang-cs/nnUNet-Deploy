@@ -52,10 +52,10 @@ cons:
 Example:
 
 ```python
-    from predictor.paths import nnUNet_results, nnUNet_raw
+    from paths import nnUNet_results, nnUNet_raw
 import torch
-from predictor.common import join
-from predictor.inference.predict_from_raw_data import nnUNetPredictor
+from common import join
+from inference.predict_from_raw_data import nnUNetPredictor
 
 # instantiate the nnUNetPredictor
 predictor = nnUNetPredictor(

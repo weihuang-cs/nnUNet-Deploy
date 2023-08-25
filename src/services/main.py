@@ -2,15 +2,15 @@ import sys
 import trace
 
 import torch
-
-from predictor.predict_from_raw_data import nnUNetPredictor
-from predictor.utils import join
-
 sys.path.append("../predictor")
+
+from predictor.common.file_and_folder_operations import *
+from predictor.predict_from_raw_data import nnUNetPredictor
+
 
 
 def run():
-    model_folder = join("./model/FetalSeg/nnUNetTrainer_250epochs__nnUNetPlans__2d")
+    model_folder = join("../model/FetalSeg/nnUNetTrainer_250epochs__nnUNetPlans__2d")
 
     # instantiate the nnUNetPredictor
     predictor = nnUNetPredictor(
@@ -31,8 +31,8 @@ def run():
         checkpoint_name="checkpoint_final.pth",
     )
     # variant 1: give input and output folders
-    input_folders = [[join("./data/images/MR676011_1.nii.gz")]]
-    output_folders = [join("./data/outputs/MR676011_1.nii.gz")]
+    input_folders = [[join("../data/images/MR676011_1.nii.gz")]]
+    output_folders = [join("../data/outputs/MR676011_1.nii.gz")]
     predictor.predict_from_files(
         input_folders,
         output_folders,

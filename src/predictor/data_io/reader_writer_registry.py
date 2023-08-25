@@ -1,7 +1,8 @@
+import os
 import traceback
 from typing import Type
 
-import predictor
+# import predictor
 from predictor.common.file_and_folder_operations import join
 from predictor.data_io.base_reader_writer import BaseReaderWriter
 from predictor.data_io.nibabel_reader_writer import NibabelIO, NibabelIOWithReorient
@@ -91,12 +92,12 @@ def determine_reader_writer_from_file_ending(
 
 def recursive_find_reader_writer_by_name(rw_class_name: str) -> Type[BaseReaderWriter]:
     ret = recursive_find_python_class(
-        join(predictor.__path__[0], "data_io"), rw_class_name, "predictor.data_io"
+        os.path.dirname(__file__), rw_class_name, "predictor.data_io"
     )
     if ret is None:
         raise RuntimeError(
             "Unable to find reader writer class '%s'. Please make sure this class is located in the "
-            "predictor.data_io module." % rw_class_name
+            "predictor.data_io. module." % rw_class_name
         )
     else:
         return ret

@@ -9,8 +9,8 @@ from torch.multiprocessing import Event, Queue, Manager
 
 from predictor.data_io.data_loader import DataLoader
 from predictor.data_ops.processor import DefaultPreprocessor
-from predictor.common.label_handling import convert_labelmap_to_one_hot
-from predictor.common.plans_handler import ConfigurationManager, PlansManager
+from predictor.data_ops.label_handling import convert_labelmap_to_one_hot
+from predictor.data_ops.plans_handler import ConfigurationManager, PlansManager
 
 
 def preprocess_fromfiles_save_to_queue(

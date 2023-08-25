@@ -12,31 +12,20 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
+import importlib
 import os.path
+import pkgutil
 import re
+from copy import deepcopy
+from typing import Callable, List, Tuple, Union
 
 import numpy as np
-from predictor.common.file_and_folder_operations import *
-from copy import deepcopy
-from typing import List, Tuple, Union
-
 import torch
+from predictor.common.file_and_folder_operations import *
 from skimage.measure import label
 from skimage.morphology import ball
-from torch.nn import functional as F
-
-import numpy as np
 from skimage.transform import resize
-
-from typing import Callable
-
-import predictor
-from predictor.common.file_and_folder_operations import join
-
-import importlib
-import pkgutil
-
-import torch
+from torch.nn import functional as F
 
 
 def softmax_helper_dim0(x: torch.Tensor) -> torch.Tensor:
@@ -66,16 +55,15 @@ class dummy_context(object):
         pass
 
 
-def recursive_find_python_class(folder: str, class_name: str, current_module: str):
+def recursive_find_python_class(folder: str, class_name: str,
+                                current_module: str):
     tr = None
     for importer, modname, ispkg in pkgutil.iter_modules([folder]):
-        # print(modname, ispkg)
         if not ispkg:
             m = importlib.import_module(current_module + "." + modname)
             if hasattr(m, class_name):
                 tr = getattr(m, class_name)
                 break
-
     if tr is None:
         for importer, modname, ispkg in pkgutil.iter_modules([folder]):
             if ispkg:
@@ -90,36 +78,26 @@ def recursive_find_python_class(folder: str, class_name: str, current_module: st
     return tr
 
 
-def recursive_find_resampling_fn_by_name(resampling_fn: str) -> Callable:
-    ret = recursive_find_python_class(
-        join(predictor.__path__[0], "data_ops"), resampling_fn, "predictor.data_ops"
-    )
-    if ret is None:
-        raise RuntimeError(
-            "Unable to find resampling function named '%s'. Please make sure this fn is located in the "
-            "predictor.data_ops module." % resampling_fn
-        )
-    else:
-        return ret
-
-
-def label_with_component_sizes(
-    binary_image: np.ndarray, connectivity: int = None
-) -> Tuple[np.ndarray, dict]:
+def label_with_component_sizes(binary_image: np.ndarray,
+                               connectivity: int = None
+                               ) -> Tuple[np.ndarray, dict]:
     if not binary_image.dtype == bool:
-        print("Warning: it would be way faster if your binary image had dtype bool")
-    labeled_image, num_components = label(
-        binary_image, return_num=True, connectivity=connectivity
-    )
+        print(
+            "Warning: it would be way faster if your binary image had dtype bool"
+        )
+    labeled_image, num_components = label(binary_image,
+                                          return_num=True,
+                                          connectivity=connectivity)
     component_sizes = {
-        i + 1: j for i, j in enumerate(np.bincount(labeled_image.ravel())[1:])
+        i + 1: j
+        for i, j in enumerate(np.bincount(labeled_image.ravel())[1:])
     }
     return labeled_image, component_sizes
 
 
-def generate_ball(
-    radius: Union[Tuple, List], spacing: Union[Tuple, List] = (1, 1, 1), dtype=np.uint8
-) -> np.ndarray:
+def generate_ball(radius: Union[Tuple, List],
+                  spacing: Union[Tuple, List] = (1, 1, 1),
+                  dtype=np.uint8) -> np.ndarray:
     """
     Returns a ball/ellipsoid corresponding to the specified size (radius = list/tuple of len 3 with one radius per axis)
     If you use spacing, both radius and spacing will be interpreted relative to each other, so a radius of 10 with a
@@ -144,9 +122,9 @@ def generate_ball(
 
 
 def pad_bbox(
-    bounding_box: Union[List[List[int]], Tuple[Tuple[int, int]]],
-    pad_amount: Union[int, List[int]],
-    array_shape: Tuple[int, ...] = None,
+        bounding_box: Union[List[List[int]], Tuple[Tuple[int, int]]],
+        pad_amount: Union[int, List[int]],
+        array_shape: Tuple[int, ...] = None,
 ) -> List[List[int]]:
     """ """
     if isinstance(bounding_box, tuple):
@@ -171,14 +149,14 @@ def pad_bbox(
     return bounding_box
 
 
-def regionprops_bbox_to_proper_bbox(
-    regionprops_bbox: Tuple[int, ...]
-) -> List[List[int]]:
+def regionprops_bbox_to_proper_bbox(regionprops_bbox: Tuple[int, ...]
+                                    ) -> List[List[int]]:
     """
     regionprops_bbox is what you get from `from skimage.measure import regionprops`
     """
     dim = len(regionprops_bbox) // 2
-    return [[regionprops_bbox[i], regionprops_bbox[i + dim]] for i in range(dim)]
+    return [[regionprops_bbox[i], regionprops_bbox[i + dim]]
+            for i in range(dim)]
 
 
 def bounding_box_to_slice(bounding_box: List[List[int]]):
@@ -188,8 +166,7 @@ def bounding_box_to_slice(bounding_box: List[List[int]]):
 def crop_to_bbox(array: np.ndarray, bounding_box: List[List[int]]):
     assert len(bounding_box) == len(array.shape), (
         f"Dimensionality of bbox and array do not match. bbox has length "
-        f"{len(bounding_box)} while array has dimension {len(array.shape)}"
-    )
+        f"{len(bounding_box)} while array has dimension {len(array.shape)}")
     slicer = bounding_box_to_slice(bounding_box)
     return array[slicer]
 
@@ -245,15 +222,15 @@ def get_bbox_from_mask_npwhere(mask: np.ndarray) -> List[List[int]]:
 
 
 def pad_nd_image(
-    image: Union[torch.Tensor, np.ndarray],
-    new_shape: Tuple[int, ...] = None,
-    mode: str = "constant",
-    kwargs: dict = None,
-    return_slicer: bool = False,
-    shape_must_be_divisible_by: Union[int, Tuple[int, ...], List[int]] = None,
-) -> Union[
-    Union[torch.Tensor, np.ndarray], Tuple[Union[torch.Tensor, np.ndarray], Tuple]
-]:
+        image: Union[torch.Tensor, np.ndarray],
+        new_shape: Tuple[int, ...] = None,
+        mode: str = "constant",
+        kwargs: dict = None,
+        return_slicer: bool = False,
+        shape_must_be_divisible_by: Union[int, Tuple[int, ...],
+                                          List[int]] = None,
+) -> Union[Union[torch.Tensor, np.ndarray], Tuple[Union[torch.Tensor, np.
+                                                        ndarray], Tuple]]:
     """
     One padder to pad them all. Documentation? Well okay. A little bit
 
@@ -294,54 +271,57 @@ def pad_nd_image(
     old_shape = np.array(image.shape)
 
     if shape_must_be_divisible_by is not None:
-        assert isinstance(shape_must_be_divisible_by, (int, list, tuple, np.ndarray))
+        assert isinstance(shape_must_be_divisible_by,
+                          (int, list, tuple, np.ndarray))
         if isinstance(shape_must_be_divisible_by, int):
-            shape_must_be_divisible_by = [shape_must_be_divisible_by] * len(image.shape)
+            shape_must_be_divisible_by = [shape_must_be_divisible_by] * len(
+                image.shape)
         else:
             if len(shape_must_be_divisible_by) < len(image.shape):
                 shape_must_be_divisible_by = [1] * (
-                    len(image.shape) - len(shape_must_be_divisible_by)
-                ) + list(shape_must_be_divisible_by)
+                    len(image.shape) - len(shape_must_be_divisible_by)) + list(
+                        shape_must_be_divisible_by)
 
     if new_shape is None:
         assert shape_must_be_divisible_by is not None
         new_shape = image.shape
 
     if len(new_shape) < len(image.shape):
-        new_shape = list(image.shape[: len(image.shape) - len(new_shape)]) + list(
-            new_shape
-        )
+        new_shape = list(
+            image.shape[:len(image.shape) - len(new_shape)]) + list(new_shape)
 
-    new_shape = [max(new_shape[i], old_shape[i]) for i in range(len(new_shape))]
+    new_shape = [
+        max(new_shape[i], old_shape[i]) for i in range(len(new_shape))
+    ]
 
     if shape_must_be_divisible_by is not None:
-        if not isinstance(shape_must_be_divisible_by, (list, tuple, np.ndarray)):
-            shape_must_be_divisible_by = [shape_must_be_divisible_by] * len(new_shape)
+        if not isinstance(shape_must_be_divisible_by,
+                          (list, tuple, np.ndarray)):
+            shape_must_be_divisible_by = [shape_must_be_divisible_by
+                                          ] * len(new_shape)
 
         if len(shape_must_be_divisible_by) < len(new_shape):
-            shape_must_be_divisible_by = [1] * (
-                len(new_shape) - len(shape_must_be_divisible_by)
-            ) + list(shape_must_be_divisible_by)
+            shape_must_be_divisible_by = [1] * (len(new_shape) - len(
+                shape_must_be_divisible_by)) + list(shape_must_be_divisible_by)
 
         for i in range(len(new_shape)):
             if new_shape[i] % shape_must_be_divisible_by[i] == 0:
                 new_shape[i] -= shape_must_be_divisible_by[i]
 
-        new_shape = np.array(
-            [
-                new_shape[i]
-                + shape_must_be_divisible_by[i]
-                - new_shape[i] % shape_must_be_divisible_by[i]
-                for i in range(len(new_shape))
-            ]
-        )
+        new_shape = np.array([
+            new_shape[i] + shape_must_be_divisible_by[i] -
+            new_shape[i] % shape_must_be_divisible_by[i]
+            for i in range(len(new_shape))
+        ])
 
     difference = new_shape - old_shape
     pad_below = difference // 2
     pad_above = difference // 2 + difference % 2
     pad_list = [list(i) for i in zip(pad_below, pad_above)]
 
-    if not ((all([i == 0 for i in pad_below])) and (all([i == 0 for i in pad_above]))):
+    if not ((all([i == 0
+                  for i in pad_below])) and (all([i == 0
+                                                  for i in pad_above]))):
         if isinstance(image, np.ndarray):
             res = np.pad(image, pad_list, mode, **kwargs)
         elif isinstance(image, torch.Tensor):
@@ -360,7 +340,8 @@ def pad_nd_image(
         return res, slicer
 
 
-def get_identifiers_from_splitted_dataset_folder(folder: str, file_ending: str):
+def get_identifiers_from_splitted_dataset_folder(folder: str,
+                                                 file_ending: str):
     files = subfiles(folder, suffix=file_ending, join=False)
     # all files have a 4 digit channel index (_XXXX)
     crop = len(file_ending) + 5
@@ -370,63 +351,59 @@ def get_identifiers_from_splitted_dataset_folder(folder: str, file_ending: str):
     return files
 
 
-def create_lists_from_splitted_dataset_folder(
-    folder: str, file_ending: str, identifiers: List[str] = None
-) -> List[List[str]]:
+def create_lists_from_splitted_dataset_folder(folder: str,
+                                              file_ending: str,
+                                              identifiers: List[str] = None
+                                              ) -> List[List[str]]:
     """
     does not rely on dataset.json
     """
     if identifiers is None:
-        identifiers = get_identifiers_from_splitted_dataset_folder(folder, file_ending)
+        identifiers = get_identifiers_from_splitted_dataset_folder(
+            folder, file_ending)
     files = subfiles(folder, suffix=file_ending, join=False, sort=True)
     list_of_lists = []
     for f in identifiers:
         p = re.compile(re.escape(f) + r"_\d\d\d\d" + re.escape(file_ending))
-        list_of_lists.append([join(folder, i) for i in files if p.fullmatch(i)])
+        list_of_lists.append(
+            [join(folder, i) for i in files if p.fullmatch(i)])
     return list_of_lists
 
 
-def get_filenames_of_train_images_and_targets(
-    raw_dataset_folder: str, dataset_json: dict = None
-):
+def get_filenames_of_train_images_and_targets(raw_dataset_folder: str,
+                                              dataset_json: dict = None):
     if dataset_json is None:
         dataset_json = load_json(join(raw_dataset_folder, "dataset.json"))
 
     if "dataset" in dataset_json.keys():
         dataset = dataset_json["dataset"]
         for k in dataset.keys():
-            dataset[k]["label"] = (
-                os.path.abspath(join(raw_dataset_folder, dataset[k]["label"]))
-                if not os.path.isabs(dataset[k]["label"])
-                else dataset[k]["label"]
-            )
+            dataset[k]["label"] = (os.path.abspath(
+                join(raw_dataset_folder, dataset[k]["label"]))
+                                   if not os.path.isabs(dataset[k]["label"])
+                                   else dataset[k]["label"])
             dataset[k]["images"] = [
                 os.path.abspath(join(raw_dataset_folder, i))
-                if not os.path.isabs(i)
-                else i
-                for i in dataset[k]["images"]
+                if not os.path.isabs(i) else i for i in dataset[k]["images"]
             ]
     else:
         identifiers = get_identifiers_from_splitted_dataset_folder(
-            join(raw_dataset_folder, "imagesTr"), dataset_json["file_ending"]
-        )
+            join(raw_dataset_folder, "imagesTr"), dataset_json["file_ending"])
         images = create_lists_from_splitted_dataset_folder(
             join(raw_dataset_folder, "imagesTr"),
             dataset_json["file_ending"],
             identifiers,
         )
         segs = [
-            join(raw_dataset_folder, "labelsTr", i + dataset_json["file_ending"])
-            for i in identifiers
+            join(raw_dataset_folder, "labelsTr",
+                 i + dataset_json["file_ending"]) for i in identifiers
         ]
         dataset = {
-            i: {"images": im, "label": se}
+            i: {
+                "images": im,
+                "label": se
+            }
             for i, im, se in zip(identifiers, images, segs)
         }
     return dataset
 
-
-if __name__ == "__main__":
-    print(
-        get_filenames_of_train_images_and_targets(join(nnUNet_raw, "Dataset002_Heart"))
-    )

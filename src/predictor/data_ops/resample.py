@@ -1,3 +1,4 @@
+import os
 from collections import OrderedDict
 from typing import Union, Tuple, List
 
@@ -8,7 +9,20 @@ from scipy.ndimage.interpolation import map_coordinates
 from skimage.transform import resize
 
 from predictor.common.configuration import ANISO_THRESHOLD
-
+from predictor.common.utils import  recursive_find_python_class
+from typing import Callable
+                          
+def recursive_find_resampling_fn_by_name(resampling_fn: str) -> Callable:
+    ret = recursive_find_python_class(
+        os.path.dirname(__file__), resampling_fn, "predictor.data_ops"
+    )
+    if ret is None:
+        raise RuntimeError(
+            "Unable to find resampling function named '%s'. Please make sure this fn is located in the "
+            "predictor.data_ops module." % resampling_fn
+        )
+    else:
+        return ret
 
 def get_do_separate_z(
     spacing: Union[Tuple[float, ...], List[float], np.ndarray],

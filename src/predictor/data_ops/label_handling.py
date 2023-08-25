@@ -1,21 +1,12 @@
-from __future__ import annotations
-
+import os
 from time import time
-from typing import TYPE_CHECKING
-from typing import Union, List, Tuple, Type
+from typing import TYPE_CHECKING, List, Tuple, Type, Union
 
 import numpy as np
 import torch
-
-import predictor
 from predictor.common.file_and_folder_operations import join
-from predictor.common.utils import bounding_box_to_slice
-from predictor.common.utils import recursive_find_python_class
-from predictor.common.utils import softmax_helper_dim0
-
-# see https://adamj.eu/tech/2021/05/13/python-type-hints-how-to-fix-circular-imports/
-if TYPE_CHECKING:
-    from predictor.common.plans_handler import PlansManager, ConfigurationManager
+from predictor.common.utils import (bounding_box_to_slice, recursive_find_python_class,
+                          softmax_helper_dim0)
 
 
 class LabelManager(object):
@@ -299,9 +290,9 @@ def get_labelmanager_class_from_plans(plans: dict) -> Type[LabelManager]:
         return LabelManager
     else:
         labelmanager_class = recursive_find_python_class(
-            join(predictor.__path__[0], "common"),
+            os.path.dirname(__file__),
             plans["label_manager"],
-            current_module="predictor.common",
+            current_module="predictor.data_ops",
         )
         return labelmanager_class
 
@@ -350,8 +341,8 @@ def convert_labelmap_to_one_hot(
 
 
 def determine_num_input_channels(
-    plans_manager: PlansManager,
-    configuration_or_config_manager: Union[str, ConfigurationManager],
+    plans_manager,
+    configuration_or_config_manager,
     dataset_json: dict,
 ) -> int:
     if isinstance(configuration_or_config_manager, str):

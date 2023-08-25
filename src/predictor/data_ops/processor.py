@@ -15,11 +15,11 @@ from typing import Union, Tuple
 
 import numpy as np
 
-import predictor
+# import predictor
 from predictor.data_ops.crop import crop_to_nonzero
 from predictor.data_ops.resample import compute_new_shape
 from predictor.common.utils import recursive_find_python_class
-from predictor.common.plans_handler import (
+from predictor.data_ops.plans_handler import (
     PlansManager,
     ConfigurationManager,
 )
@@ -235,7 +235,7 @@ class DefaultPreprocessor(object):
         for c in range(data.shape[0]):
             scheme = configuration_manager.normalization_schemes[c]
             normalizer_class = recursive_find_python_class(
-                join(predictor.__path__[0], "data_ops"),
+                os.path.dirname(__file__),
                 scheme,
                 "predictor.data_ops",
             )

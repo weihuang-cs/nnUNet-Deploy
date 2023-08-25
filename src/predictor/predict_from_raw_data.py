@@ -39,8 +39,8 @@ from predictor.common.file_path_utilities import (
 from predictor.common.get_network_from_plans import get_network_from_plans
 from predictor.common.utils import empty_cache, dummy_context
 from predictor.common.json_export import recursive_fix_for_json_export
-from predictor.common.label_handling import determine_num_input_channels
-from predictor.common.plans_handler import PlansManager
+from predictor.data_ops.label_handling import determine_num_input_channels
+from predictor.data_ops.plans_handler import PlansManager
 
 
 class nnUNetPredictor(object):

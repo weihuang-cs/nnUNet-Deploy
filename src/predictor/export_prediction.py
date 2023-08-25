@@ -6,8 +6,8 @@ import torch
 from predictor.common.file_and_folder_operations import load_json, save_pickle
 from predictor.common.configuration import default_num_processes
 from predictor.common.utils import bounding_box_to_slice
-from predictor.common.label_handling import LabelManager
-from predictor.common.plans_handler import ConfigurationManager, PlansManager
+from predictor.data_ops.label_handling import LabelManager
+from predictor.data_ops.plans_handler import ConfigurationManager, PlansManager
 
 
 def convert_predicted_logits_to_segmentation_with_correct_shape(

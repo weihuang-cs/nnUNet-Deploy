@@ -12,7 +12,7 @@ from predictor.dynamic_network_architectures.initialization.weight_init import (
     init_last_bn_before_add_to_0,
     InitWeights_He,
 )
-from predictor.common.plans_handler import ConfigurationManager, PlansManager
+from predictor.data_ops.plans_handler import ConfigurationManager, PlansManager
 
 
 def get_network_from_plans(
